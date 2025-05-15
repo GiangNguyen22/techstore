@@ -29,6 +29,8 @@ public class Product {
     @Column(name = "stock_quantity", nullable = false)
     private Integer stockQuantity;
 
+    private  String type;
+
     @Column(name = "company_name")
     private String companyName;
 
