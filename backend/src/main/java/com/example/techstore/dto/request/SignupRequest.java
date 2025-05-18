@@ -1,14 +1,16 @@
 package com.example.techstore.dto.request;
 
-import java.util.List;
 public class SignupRequest {
-     private String name;
+    private String name;
+     private String dateOfBirth;
     private String email;
     private String password;
     private String phone;
     private String address;
-    private List<String> roles;
+   
 
+
+    // Getters và Setters
     public String getName() {
         return name;
     }
@@ -16,6 +18,7 @@ public class SignupRequest {
     public void setName(String name) {
         this.name = name;
     }
+
 
     public String getEmail() {
         return email;
@@ -40,20 +43,17 @@ public class SignupRequest {
     public void setPhone(String phone) {
         this.phone = phone;
     }
-
     public String getAddress() {
         return address;
     }
-
     public void setAddress(String address) {
         this.address = address;
     }
-
-    public List<String> getRoles() {
-        return roles;
+    public String getDateOfBirth() {
+        return dateOfBirth;
+    }
+    public void setDateOfBirth(String dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
     }
 
-    public void setRoles(List<String> roles) {
-        this.roles = roles;
-    }
 }

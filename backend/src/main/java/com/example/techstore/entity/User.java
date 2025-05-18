@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.example.techstore.entity.Orders;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,37 +14,56 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 100)
     private String name;
 
     private String dateOfBirth;
 
-    @Column(unique = true)
+    @Column(unique = true, length = 100)
     private String email;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 100)
     private String password;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 20)
     private String phone;
-
+    @Column(nullable = false, length = 100)
     private String address;
 
-    @Column(nullable = false)
-    private Boolean isActive;
+    @ManyToOne
+    @JoinColumn(name = "role_id", nullable = false)
+    private Role role;
 
-    @Column(name = "created_at")
+     @Column(nullable = false)
+    private int isActive= 1;
+
+    @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<UserRole> roles;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Cart cart;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Orders> orders;
+
+    public void setIsActive(int status) {
+        this.isActive = status;
+    }
+    // public User(String name, String dateOfBirth, String email, String password, String phone, String address, Role role) {
+    //     this.name = name;
+    //     this.dateOfBirth = dateOfBirth;
+    //     this.email = email;
+    //     this.password = password;
+    //     this.phone = phone;
+    //     this.address = address;
+    //     this.role = role;
+    //     this.isActive = true; // Mặc định là true
+    // }
     
 }
 
