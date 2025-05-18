@@ -1,6 +1,7 @@
 package com.example.techstore.entity;
 
 import jakarta.persistence.*;
+import jakarta.persistence.criteria.CriteriaBuilder.In;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -51,9 +52,13 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Orders> orders;
 
-    public void setIsActive(int status) {
-        this.isActive = status;
+    public void setIsActive() {
+        this.isActive = 1;
     }
+    public Integer getIsActive() {
+        return isActive;
+    }
+
     // public User(String name, String dateOfBirth, String email, String password, String phone, String address, Role role) {
     //     this.name = name;
     //     this.dateOfBirth = dateOfBirth;
