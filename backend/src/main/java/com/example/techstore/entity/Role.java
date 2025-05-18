@@ -16,8 +16,5 @@ public class Role {
     private Integer id;
 
     @Column(nullable = false)
-    private String code;
-
-    @Column(nullable = false)
     private String name;
 }
