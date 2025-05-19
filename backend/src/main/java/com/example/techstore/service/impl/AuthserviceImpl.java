@@ -69,7 +69,7 @@ public class AuthserviceImpl implements AuthService {
             boolean isAuthenticated = passwordEncoder.matches(loginRequest.getPassword(), userRepository.findByEmail(loginRequest.getEmail()).get().getPassword());
             User user = userRepository.findByEmail(loginRequest.getEmail())
                     .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + loginRequest.getEmail()));
-            if(user.getIsActive() == 1 ){
+            if(user.getIsActive() == 1 && isAuthenticated){
                 String jwt = jwtTokenProvider.generateToken(loginRequest.getEmail(), user.getRole().getName());
                 return new SigninResponse("Đăng nhập thành công", user.getName(), user.getRole().getName(), jwt);
             }

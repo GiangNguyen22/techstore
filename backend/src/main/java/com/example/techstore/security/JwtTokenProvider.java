@@ -1,17 +1,18 @@
 package com.example.techstore.security;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
+
+import com.example.techstore.entity.User;
+import com.example.techstore.security.models.CustomUserDetails;
 @Component
 public class JwtTokenProvider {
 
@@ -51,15 +52,24 @@ public String getRoleFromToken(String token) {
     return claims.get("role", String.class);
 }
 
-    public boolean validateToken(String token) {
-        try {
-            Jwts.parser()
-                    .verifyWith(Keys.hmacShaKeyFor(jwtSecret.getBytes()))
-                    .build()
-                    .parseSignedClaims(token);
-            return true;
-        } catch (ExpiredJwtException | MalformedJwtException | UnsupportedJwtException | IllegalArgumentException e) {
-            return false;
-        }
+    public boolean validateToken(String token, CustomUserDetails userDetails) {
+       try {
+        Claims claims = Jwts.parser()
+                .verifyWith(Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8)))
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+
+        String email = claims.getSubject();
+        return email.equals(userDetails.getUsername()) && !isTokenExpired(claims);
+    } catch (JwtException | IllegalArgumentException e) {
+        System.err.println("Invalid JWT: " + e.getMessage());
+        return false;
     }
+}
+
+private boolean isTokenExpired(Claims claims) {
+    return claims.getExpiration().before(new Date());
+}
+
 }
