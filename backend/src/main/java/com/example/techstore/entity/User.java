@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -49,13 +50,11 @@ public class User implements UserDetails {
     @Column(nullable = false, name = "is_active")
     private Boolean isActive;
 
-    @Transient
-    private String provider;
-
-    @Transient
+    @Column(name = "verification_code")
     private String verificationCode;
 
     @Column(name = "created_at")
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
 
