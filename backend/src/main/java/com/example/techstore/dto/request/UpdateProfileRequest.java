@@ -1,9 +1,6 @@
-package com.example.techstore.dto;
+package com.example.techstore.dto.request;
 
 import com.example.techstore.entity.Role;
-import jakarta.persistence.Column;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,13 +10,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserDto {
-    private Integer id;
+public class UpdateProfileRequest {
     private String name;
     private String dateOfBirth;
-    private String email;
-    private String roleId;
     private String phone;
     private String address;
-    private Boolean isActive;
 }
