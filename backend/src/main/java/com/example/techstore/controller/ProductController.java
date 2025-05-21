@@ -28,11 +28,7 @@ public class ProductController {
         ProductDto productDto = productService.getProductById(id);
         return ResponseEntity.ok(productDto);
     }
-//    @GetMapping
-//    public ResponseEntity<List<ProductDto>> getProductsByCategory(@RequestParam Integer categoryId) {
-//        List<ProductDto> productDtos = productService.findProductByCategory(categoryId);
-//        return ResponseEntity.ok(productDtos);
-//    }
+
 
     @GetMapping("/search")
     public ResponseEntity<List<ProductDto>> searchProducts(@RequestParam String keyword, HttpServletResponse response) {
