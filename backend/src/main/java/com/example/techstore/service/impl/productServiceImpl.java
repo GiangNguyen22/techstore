@@ -23,4 +23,23 @@ public class productServiceImpl implements ProductService {
         Pageable top10 = PageRequest.of(0, 10);
         return productRepository.findAll(top10).getContent();
     }
+    @Override
+    public List<Product> getAllProducts() {
+        // Lấy tất cả sản phẩm
+        return productRepository.findAll();
+    }
+    @Override
+    public Product getInforOneProduct(Integer id){
+        return productRepository.findById(id).orElse(null);
+    };
+    @Override
+    public Boolean deleteOneProduct(Integer id){
+        if(productRepository.existsById(id)){
+            productRepository.deleteById(id);
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
 }
