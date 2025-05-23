@@ -36,6 +36,7 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests((authorize)-> authorize
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/category", "/api/products").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/payment/vnpay-return").permitAll()
                 .anyRequest().authenticated())
                 .addFilterBefore(new JWTAuthenticationFilter(userDetailsService, jwtTokenHelper), UsernamePasswordAuthenticationFilter.class);
 

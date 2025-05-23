@@ -8,6 +8,7 @@ import com.example.techstore.mapper.ProductMapper;
 import com.example.techstore.repository.CategoryRepository;
 import com.example.techstore.repository.ProductRepository;
 import com.example.techstore.service.ProductService;
+import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -58,6 +59,11 @@ public class ProductServiceImpl implements ProductService {
         // Ví dụ dùng repository truy vấn database với like '%keyword%'
         List<Product> products = productRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(keyword, keyword);
         return productMapper.getProductDtoList(products);
+    }
+
+    @Override
+    public Product fetchProductById(int productId) throws Exception {
+        return productRepository.findById(productId).orElseThrow(BadRequestException::new);
     }
 
     @Override
