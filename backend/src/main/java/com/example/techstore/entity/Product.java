@@ -39,6 +39,9 @@ public class Product {
     @Column(name = "company_name")
     private String companyName;
 
+    @Column(name = "original_price")
+    private BigDecimal originalPrice;
+
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;

@@ -9,7 +9,7 @@ import java.util.*;
 @Configuration
 public class VNPayConfig {
     public static String vnp_PayUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-    public static String vnp_ReturnUrl = "https://9659-42-114-94-74.ngrok-free.app/api/payment/vnpay-return";
+    public static String vnp_ReturnUrl = "https://c981-171-224-177-59.ngrok-free.app/api/payment/vnpay-return";
     public static String vnp_TmnCode = "XRJCULW9";
     public static String secretKey = "N8H7YIOGP7LI2K2E0D62H0LJ2RCFKILY";
     public static String vnp_Version = "2.1.0";

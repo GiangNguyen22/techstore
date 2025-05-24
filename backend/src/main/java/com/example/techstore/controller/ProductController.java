@@ -17,6 +17,11 @@ public class ProductController {
 
     @Autowired
     private ProductService productService;
+     @GetMapping("/top10")
+    public List<Product> Top10Products() {
+        return productService.getTop10Products();
+    }
+
 
     @GetMapping
     public ResponseEntity<List<ProductDto>> getAllProducts(@RequestParam(required = false) Integer categoryId) {
