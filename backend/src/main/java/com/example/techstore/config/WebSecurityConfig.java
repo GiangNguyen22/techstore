@@ -16,6 +16,10 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.security.config.Customizer;
 
 @Configuration
 @EnableWebSecurity
@@ -32,16 +36,45 @@ public class WebSecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests((authorize)-> authorize
-                .requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/category", "/api/products").permitAll()
-                .anyRequest().authenticated())
-                .addFilterBefore(new JWTAuthenticationFilter(userDetailsService, jwtTokenHelper), UsernamePasswordAuthenticationFilter.class);
+        http
+                .cors(Customizer.withDefaults())
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests((authorize) -> authorize
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/category", "/api/products").permitAll()
+                        .requestMatchers(publicApis).permitAll()
+                        .anyRequest().authenticated()
+                )
+                .addFilterBefore(new JWTAuthenticationFilter(userDetailsService, jwtTokenHelper),
+                        UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
+//@Bean
+//public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//    http
+//            .cors(Customizer.withDefaults()) // Bật CORS
+//            .csrf(AbstractHttpConfigurer::disable)
+//            .authorizeHttpRequests((authorize) -> authorize
+//                    .anyRequest().permitAll()  // Mở toàn quyền, không cần auth
+//            );
+//    return http.build();
+//}
+
+
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.addAllowedOrigin("http://localhost:3000");  // frontend origin
+        configuration.addAllowedMethod("*");  // cho phép tất cả các phương thức GET, POST, ...
+        configuration.addAllowedHeader("*");  // cho phép tất cả các header
+        configuration.setAllowCredentials(true); // nếu bạn dùng cookie hoặc credentials
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return web -> web.ignoring().requestMatchers(publicApis);

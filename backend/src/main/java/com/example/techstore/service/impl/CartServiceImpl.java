@@ -11,6 +11,7 @@ import com.example.techstore.repository.ProductVariantRepository;
 import com.example.techstore.repository.UserRepository;
 import com.example.techstore.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -29,69 +30,128 @@ public class CartServiceImpl implements CartService {
     @Autowired
     private ProductVariantRepository productVariantRepository;
 
-    @Override
-    public CartDto viewCart(Integer userId) {
-        Cart cart = cartRepository.findByUserId(userId).orElseThrow(()-> new ResourceNotFoundEx("Cart Not Found!"));
+//    @Override
+//    public CartDto viewCart(Integer userId) {
+//        Cart cart = cartRepository.findByUserId(userId).orElseThrow(()-> new ResourceNotFoundEx("Cart Not Found!"));
+//
+//        List<CartItemDto> itemDtos = cart.getItems().stream().map(item -> {
+//            ProductVariant productVariant = item.getProductVariant();
+//            Product p = productVariant.getProduct();
+//            return CartItemDto.builder()
+//                    .id(item.getId())
+//                    .productId(p.getId())
+//                    .productVariantId(productVariant.getId())
+//                    .productName(p.getName())
+//                    .thumbnail(p.getThumbnail())
+//                    .quantity(item.getQuantity())
+//                    .unitPrice(item.getProductPrice())
+//                    .color(productVariant.getColor())
+//                    .size(productVariant.getSize())
+//                    .totalPrice(item.getProductPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+//                    .build();
+//        }).toList();
+//
+//        // tính tổng tiền trong cart
+//        BigDecimal totalPrice = itemDtos.stream().map(CartItemDto::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
+//
+//        return new CartDto(itemDtos, totalPrice);
+//    }
+@Override
+public CartDto viewCart(Integer userId) {
+    Cart cart = cartRepository.findByUserId(userId).orElseThrow(() -> new ResourceNotFoundEx("Cart Not Found!"));
 
-        List<CartItemDto> itemDtos = cart.getItems().stream().map(item -> {
-            ProductVariant productVariant = item.getProductVariant();
-            Product p = productVariant.getProduct();
-            return CartItemDto.builder()
-                    .id(item.getId())
-                    .productId(p.getId())
-                    .productVariantId(productVariant.getId())
-                    .productName(p.getName())
-                    .thumbnail(p.getThumbnail())
-                    .quantity(item.getQuantity())
-                    .unitPrice(item.getProductPrice())
-                    .color(productVariant.getColor())
-                    .size(productVariant.getSize())
-                    .totalPrice(item.getProductPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
-                    .build();
-        }).toList();
+    List<CartItemDto> itemDtos = cart.getItems().stream().map(item -> {
+        ProductVariant productVariant = item.getProductVariant();
+        Product p = productVariant.getProduct();
+        return CartItemDto.builder()
+                .id(item.getId())
+                .productId(p.getId())
+                .productVariantId(productVariant.getId())
+                .productName(p.getName())
+                .thumbnail(p.getThumbnail())
+                .quantity(item.getQuantity())
+                .unitPrice(item.getProductPrice())
+                .color(productVariant.getColor())
+                .size(productVariant.getSize())
+                .totalPrice(item.getProductPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                .stockQuantity(productVariant.getStockQuantity())  // <-- Thêm dòng này để trả về tồn kho
+                .build();
+    }).toList();
 
-        // tính tổng tiền trong cart
-        BigDecimal totalPrice = itemDtos.stream().map(CartItemDto::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
+    BigDecimal totalPrice = itemDtos.stream()
+            .map(CartItemDto::getTotalPrice)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        return new CartDto(itemDtos, totalPrice);
+    return new CartDto(itemDtos, totalPrice);
+}
+
+//    @Override
+//    public Cart addToCart(AddToCartRequest request) {
+//        User user = userRepository.findById(request.getUserId()).orElseThrow(()-> new ResourceNotFoundEx("User not found!"));
+//
+//        //nếu user chưa có cart thì tạo cart mới
+//        Cart cart = cartRepository.findByUserId(user.getId())
+//                .orElseGet(()-> cartRepository.save(new Cart(user, null, BigDecimal.ZERO))
+//        );
+//
+//        ProductVariant productVariant = productVariantRepository.findById(request.getProductVariantId())
+//                                                            .orElseThrow(()-> new ResourceNotFoundEx("Product variant not found!"));
+//
+//        //kiểm tra xem product đã tồn tại trong giỏ hàng chưa
+//        CartItems existingItem = cartItemRepository.findByCartIdAndProductVariantId(cart.getId(), productVariant.getId());
+//        CartItems items;
+//        //nếu tồn tại thì cộng thêm số lượng
+//        if(existingItem != null) {
+//            items = existingItem;
+//            items.setQuantity(existingItem.getQuantity() + request.getQuantity());
+//        }else{
+//            items = new CartItems();
+//            items.setCart(cart);
+//            items.setProductVariant(productVariant);
+//            items.setQuantity(request.getQuantity());
+//            items.setProductPrice(productVariant.getProduct().getPrice());
+//        }
+//        cartItemRepository.save(items);
+//
+//        //Cập nhật tổng giỏ hàng
+//        List<CartItems> cartItems = cart.getItems() != null ? cart.getItems() : List.of();
+//        BigDecimal total = cartItems.stream().map(i -> i.getProductPrice().multiply(BigDecimal.valueOf(i.getQuantity())))
+//                                                                                .reduce(BigDecimal.ZERO, BigDecimal::add);
+//        cart.setTotalPrice(total);
+//
+//        return cartRepository.save(cart);
+//    }
+@Override
+public Cart addToCart(AddToCartRequest request, User user) {
+    // nếu user chưa có cart
+    Cart cart = cartRepository.findByUserId(user.getId())
+            .orElseGet(() -> cartRepository.save(new Cart(user, null, BigDecimal.ZERO)));
+
+    ProductVariant productVariant = productVariantRepository.findById(request.getProductVariantId())
+            .orElseThrow(() -> new ResourceNotFoundEx("Product variant not found!"));
+
+    CartItems existingItem = cartItemRepository.findByCartIdAndProductVariantId(cart.getId(), productVariant.getId());
+    CartItems items;
+    if (existingItem != null) {
+        items = existingItem;
+        items.setQuantity(existingItem.getQuantity() + request.getQuantity());
+    } else {
+        items = new CartItems();
+        items.setCart(cart);
+        items.setProductVariant(productVariant);
+        items.setQuantity(request.getQuantity());
+        items.setProductPrice(productVariant.getProduct().getPrice());
     }
+    cartItemRepository.save(items);
 
-    @Override
-    public Cart addToCart(AddToCartRequest request) {
-        User user = userRepository.findById(request.getUserId()).orElseThrow(()-> new ResourceNotFoundEx("User not found!"));
+    // cập nhật tổng tiền
+    BigDecimal total = cart.getItems().stream()
+            .map(i -> i.getProductPrice().multiply(BigDecimal.valueOf(i.getQuantity())))
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+    cart.setTotalPrice(total);
 
-        //nếu user chưa có cart thì tạo cart mới
-        Cart cart = cartRepository.findByUserId(user.getId())
-                .orElseGet(()-> cartRepository.save(new Cart(user, null, BigDecimal.ZERO))
-        );
-
-        ProductVariant productVariant = productVariantRepository.findById(request.getProductVariantId())
-                                                            .orElseThrow(()-> new ResourceNotFoundEx("Product variant not found!"));
-
-        //kiểm tra xem product đã tồn tại trong giỏ hàng chưa
-        CartItems existingItem = cartItemRepository.findByCartIdAndProductVariantId(cart.getId(), productVariant.getId());
-        CartItems items;
-        //nếu tồn tại thì cộng thêm số lượng
-        if(existingItem != null) {
-            items = existingItem;
-            items.setQuantity(existingItem.getQuantity() + request.getQuantity());
-        }else{
-            items = new CartItems();
-            items.setCart(cart);
-            items.setProductVariant(productVariant);
-            items.setQuantity(request.getQuantity());
-            items.setProductPrice(productVariant.getProduct().getPrice());
-        }
-        cartItemRepository.save(items);
-
-        //Cập nhật tổng giỏ hàng
-        List<CartItems> cartItems = cart.getItems();
-        BigDecimal total = cartItems.stream().map(i -> i.getProductPrice().multiply(BigDecimal.valueOf(i.getQuantity())))
-                                                                                .reduce(BigDecimal.ZERO, BigDecimal::add);
-        cart.setTotalPrice(total);
-
-        return cartRepository.save(cart);
-    }
+    return cartRepository.save(cart);
+}
 
     @Override
     public CartDto removeFromCart(Integer cartItemId) {
@@ -110,6 +170,18 @@ public class CartServiceImpl implements CartService {
         //Trả lại cart Dto
         return viewCart(cart.getUser().getId());
     }
+
+    @Override
+    public void validateOwnership(Integer cartItemId, String username) {
+        CartItems item = cartItemRepository.findById(cartItemId)
+                .orElseThrow(() -> new ResourceNotFoundEx("Cart item not found!"));
+
+        String itemOwnerUsername = item.getCart().getUser().getUsername();
+        if (!itemOwnerUsername.equals(username)) {
+            throw new AccessDeniedException("You do not have permission to modify this cart item");
+        }
+    }
+
 
     @Override
     public void updateCartItemQuantity(Integer cartItemId, Integer quantity) {

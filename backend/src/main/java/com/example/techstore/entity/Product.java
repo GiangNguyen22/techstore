@@ -44,8 +44,8 @@ public class Product {
     private Category category;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-    private List<ProductResource> resourceList;
+    private List<ProductResource> resources;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-    private List<ProductVariant> variantList;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL , orphanRemoval = true)
+    private List<ProductVariant>  variants;
 }

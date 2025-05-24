@@ -32,53 +32,73 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ProductDto> getAllProducts(Integer categoryId) {
         List<Product> products;
-        if(categoryId != null) {
-            Category category = categoryRepository.findById(categoryId).orElseThrow(()-> new ResourceNotFoundEx("Category not found width "+ categoryId));
+        if (categoryId != null) {
+            Category category = categoryRepository.findById(categoryId)
+                    .orElseThrow(() -> new ResourceNotFoundEx("Category not found with id " + categoryId));
             products = productRepository.findByCategoryId(category.getId());
-        }else{
+        } else {
             products = productRepository.findAll();
         }
-
-        return products.stream().map(product -> {
-            ProductDto productDto = productMapper.mapToProductDto(product);
-            productDto.setResources(productMapper.mapToProductResourceDtoList(product.getResourceList()));
-            productDto.setVariants(productMapper.mapToProductVariantDtoList(product.getVariantList()));
-            return productDto;
-        }).toList();
+        return products.stream()
+                .map(productMapper::mapToProductDto)
+                .toList();
     }
 
     @Override
     public ProductDto getProductById(Integer id) {
-        Product product = productRepository.findById(id).orElseThrow(()-> new ResourceNotFoundEx("Product not found width id: "+ id));
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundEx("Product not found with id: " + id));
         return productMapper.mapToProductDto(product);
     }
 
     @Override
     public List<ProductDto> searchProductsByKey(String keyword) {
-        // Ví dụ dùng repository truy vấn database với like '%keyword%'
-        List<Product> products = productRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(keyword, keyword);
+        List<Product> products = productRepository
+                .findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(keyword, keyword);
         return productMapper.getProductDtoList(products);
     }
 
     @Override
     public Product addProduct(ProductDto productDto) {
         Product product = productMapper.mapToProductEntity(productDto);
+
+        // Gán ngược product vào variant và resource
+        if (product.getVariants() != null) {
+            product.getVariants().forEach(variant -> variant.setProduct(product));
+        }
+        if (product.getResources() != null) {
+            product.getResources().forEach(resource -> resource.setProduct(product));
+        }
+
         return productRepository.save(product);
     }
 
+
     @Override
     public Product updateProduct(ProductDto productDto, Integer id) {
-        Product product = productRepository.findById(id).orElseThrow(()-> new ResourceNotFoundEx("Product not found "));
-        productDto.setId(product.getId());
-        return productRepository.save(productMapper.mapToProductEntity(productDto));
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundEx("Product not found with id " + id));
+
+        productMapper.updateProductEntityFromDto(productDto, product);
+
+        // Gán lại mối quan hệ ngược
+        if (product.getVariants() != null) {
+            product.getVariants().forEach(variant -> variant.setProduct(product));
+        }
+
+        if (product.getResources() != null) {
+            product.getResources().forEach(resource -> resource.setProduct(product));
+        }
+
+        return productRepository.save(product);
     }
+
 
     @Override
     public void deleteProduct(Integer id) {
-        Product product = productRepository.findById(id).orElseThrow(()-> new ResourceNotFoundEx("Product not found width id: "+ id));
-        productRepository.deleteById(product.getId());
+        if (!productRepository.existsById(id)) {
+            throw new ResourceNotFoundEx("Product not found with id: " + id);
+        }
+        productRepository.deleteById(id);
     }
-
-
-
 }

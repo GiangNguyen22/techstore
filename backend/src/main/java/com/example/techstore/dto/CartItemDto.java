@@ -22,4 +22,9 @@ public class CartItemDto {
     private BigDecimal unitPrice;
     private Integer quantity;
     private BigDecimal totalPrice;
+
+    // Thêm trường tồn kho biến thể
+
+    private Integer stockQuantity;
+
 }

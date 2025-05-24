@@ -15,7 +15,7 @@ import java.security.Principal;
 
 @RestController
 @RequestMapping("api/user")
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:3000")  // cho phép React app truy cập
 public class UserController {
     @Autowired
     private UserDetailsService userDetailsService;
