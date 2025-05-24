@@ -1,0 +1,13 @@
+{
+  "framework": "react",
+  "style": "tailwind",
+  "tailwind": {
+    "config": "./tailwind.config.js",
+    "css": "./src/index.css"
+  },
+  "dir": "./src/components",
+  "aliases": {
+    "components": "@/components",
+    "utils": "@/utils"
+  }
+}
