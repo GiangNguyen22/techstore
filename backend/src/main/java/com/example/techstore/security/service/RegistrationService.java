@@ -56,6 +56,8 @@ public class RegistrationService {
 
         }catch (Exception e){
             System.out.println(e.getMessage());
+            e.printStackTrace();
+
             throw new ServerErrorException(e.getMessage(), e.getCause());
         }
     }

@@ -74,6 +74,15 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product addProduct(ProductDto productDto, MultipartFile file) {
         Product product = productMapper.mapToProductEntity(productDto);
+
+        // Gán ngược product vào variant và resource
+        if (product.getVariants() != null) {
+            product.getVariants().forEach(variant -> variant.setProduct(product));
+        }
+        if (product.getResources() != null) {
+            product.getResources().forEach(resource -> resource.setProduct(product));
+        }
+
         Map uploadResult = cloudinaryService.upLoadFile(file);
         String thumbnail = (String) uploadResult.get("secure_url");
         product.setThumbnail(thumbnail);
@@ -84,13 +93,26 @@ public class ProductServiceImpl implements ProductService {
     public Product updateProduct(ProductDto productDto, MultipartFile file, Integer id) {
         Product product = productRepository.findById(id).orElseThrow(()-> new ResourceNotFoundEx("Product not found "));
         productDto.setId(product.getId());
-        return productRepository.save(productMapper.mapToProductEntity(productDto));
+        productMapper.updateProductEntityFromDto(productDto, product);
+
+        // Gán lại mối quan hệ ngược
+        if (product.getVariants() != null) {
+            product.getVariants().forEach(variant -> variant.setProduct(product));
+        }
+
+        if (product.getResources() != null) {
+            product.getResources().forEach(resource -> resource.setProduct(product));
+        }
+
+        return productRepository.save(product);
     }
 
     @Override
     public void deleteProduct(Integer id) {
-        Product product = productRepository.findById(id).orElseThrow(()-> new ResourceNotFoundEx("Product not found width id: "+ id));
-        productRepository.deleteById(product.getId());
+        if (!productRepository.existsById(id)) {
+            throw new ResourceNotFoundEx("Product not found with id: " + id);
+        }
+        productRepository.deleteById(id);
     }
 
 

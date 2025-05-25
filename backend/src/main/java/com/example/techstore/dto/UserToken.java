@@ -11,4 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class UserToken {
     private String token;
+    private String email;
+    private String role;  // thêm để phân quyền FE
+    private String refreshToken;
 }

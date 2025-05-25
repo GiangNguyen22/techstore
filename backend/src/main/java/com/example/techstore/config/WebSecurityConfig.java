@@ -17,9 +17,6 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
@@ -34,18 +31,19 @@ public class WebSecurityConfig {
             "/api/auth/**"
     };
 
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable)
+        http
                 .cors(Customizer.withDefaults())
-                .authorizeHttpRequests((authorize)-> authorize
-                .requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/category", "/api/products").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/products/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/payment/vnpay-return").permitAll()
-                .anyRequest().authenticated())
-                .addFilterBefore(new JWTAuthenticationFilter(userDetailsService, jwtTokenHelper), UsernamePasswordAuthenticationFilter.class);
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests((authorize) -> authorize
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/category", "/api/products").permitAll()
+                        .requestMatchers(publicApis).permitAll()
+                        .anyRequest().authenticated()
+                )
+                .addFilterBefore(new JWTAuthenticationFilter(userDetailsService, jwtTokenHelper),
+                        UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
