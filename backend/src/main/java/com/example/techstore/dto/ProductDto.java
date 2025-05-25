@@ -1,5 +1,6 @@
 package com.example.techstore.dto;
 
+import com.example.techstore.entity.ProductResource;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

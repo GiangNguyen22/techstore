@@ -22,7 +22,7 @@ public class OrderDetails {
     @ToString.Exclude
     private Orders order;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id", nullable = false)
     @JsonIgnore
     private Product product;

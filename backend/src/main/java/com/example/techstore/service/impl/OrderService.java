@@ -1,11 +1,14 @@
 package com.example.techstore.service.impl;
 
+import com.example.techstore.dto.OrderDetailDto;
 import com.example.techstore.dto.request.OrderRequest;
 import com.example.techstore.dto.response.OrderResponse;
 import com.example.techstore.entity.*;
 import com.example.techstore.enums.OrderStatus;
 import com.example.techstore.enums.PaymentMethod;
 import com.example.techstore.enums.PaymentStatus;
+import com.example.techstore.exceptions.ResourceNotFoundEx;
+import com.example.techstore.repository.OrderDetailRepository;
 import com.example.techstore.repository.OrderRepository;
 import com.example.techstore.repository.PaymentRepository;
 import com.example.techstore.service.ProductService;
@@ -18,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -33,6 +37,8 @@ public class OrderService {
     private PaymentService paymentService;
     @Autowired
     private PaymentRepository paymentRepository;
+    @Autowired
+    private OrderDetailRepository orderDetailRepository;
 
 
     @Transactional
@@ -95,5 +101,53 @@ public class OrderService {
         }
 
         return orderResponse;
+    }
+
+    public List<OrderDetailDto> getOrderByUser(String name) {
+        User user = (User) userDetailsService.loadUserByUsername(name);
+        List<Orders> orders = orderRepository.findByUserId(user.getId());
+        List<OrderDetailDto> result = new ArrayList<>();
+
+       for(Orders order : orders){
+           for(OrderDetails orderDetail : order.getOrderDetailsList()){
+               OrderDetailDto orderDetailDto = getOrderDetailDto(order, orderDetail);
+
+               result.add(orderDetailDto);
+           }
+       }
+       return result;
+    }
+
+    private static OrderDetailDto getOrderDetailDto(Orders order, OrderDetails orderDetail) {
+        OrderDetailDto orderDetailDto = new OrderDetailDto();
+        orderDetailDto.setId(order.getId());
+        orderDetailDto.setOrderDate(order.getOrderDate());
+        orderDetailDto.setOrderStatus(order.getStatus());
+        orderDetailDto.setProductName(orderDetail.getProduct().getName());
+        orderDetailDto.setQuantity(orderDetail.getQuantity());
+        orderDetailDto.setTotalAmount(order.getTotalAmount());
+        orderDetailDto.setUnitPrice(orderDetail.getUnitPrice());
+        orderDetailDto.setProductVariantId(orderDetail.getProductVariantId());
+        return orderDetailDto;
+    }
+
+    public Orders updateOrderStatus(Integer orderId, OrderStatus orderStatus) {
+            Orders order = orderRepository.findById(orderId).orElseThrow(()-> new ResourceNotFoundEx("Order not found"));
+            order.setStatus(orderStatus);
+            return orderRepository.save(order);
+    }
+
+
+    public void cancelOrder(Integer id, Principal principal) {
+        User user = (User) userDetailsService.loadUserByUsername(principal.getName());
+        Orders order = orderRepository.findById(id).orElseThrow(()-> new ResourceNotFoundEx("Order not found"));
+
+        if( order.getUser().getId().equals(user.getId())
+               && (order.getStatus().equals(OrderStatus.pending) || order.getStatus().equals(OrderStatus.confirmed))){
+            order.setStatus(OrderStatus.cancelled);
+            orderRepository.save(order);
+        }else{
+            throw new RuntimeException("Invalid request");
+        }
     }
 }

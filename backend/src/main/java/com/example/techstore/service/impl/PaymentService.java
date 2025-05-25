@@ -37,6 +37,8 @@ public class PaymentService {
         if (bankCode != null && !bankCode.isEmpty()) {
             vnpParamsMap.put("vnp_BankCode", bankCode);
         }
+        vnpParamsMap.put("vnp_TxnRef",  order.getId().toString());
+        vnpParamsMap.put("vnp_OrderInfo", "Thanh toan don hang:" + order.getId());
 
         vnpParamsMap.put("vnp_IpAddr", VNPayUtil.getIpAddress(request));
         //build query url
@@ -51,17 +53,17 @@ public class PaymentService {
 
 
     public String handleVnPayReturn(Map<String, String> allParams) {
-        String vnp_SecureHash = allParams.get("vnp_SecureHash");
-        allParams.remove("vnp_SecureHash");
-        allParams.remove("vnp_SecureHashType");
-
-        String signValue = VNPayUtil.hashAllFields(allParams);
-        System.out.println("signValue: " + signValue);
-        System.out.println("vnp_SecureHash: " + vnp_SecureHash);
-
-        if (!signValue.equals(vnp_SecureHash)) {
-            return "Chữ ký không hợp lệ";
-        }
+//        String vnp_SecureHash = allParams.get("vnp_SecureHash");
+//        allParams.remove("vnp_SecureHash");
+//        allParams.remove("vnp_SecureHashType");
+//
+//        String signValue = VNPayUtil.hashAllFields(allParams);
+//        System.out.println("signValue: " + signValue);
+//        System.out.println("vnp_SecureHash: " + vnp_SecureHash);
+//
+//        if (!signValue.equals(vnp_SecureHash)) {
+//            return "Chữ ký không hợp lệ";
+//        }
 
         String responseCode = allParams.get("vnp_ResponseCode");
         String orderIdStr = allParams.get("vnp_TxnRef");

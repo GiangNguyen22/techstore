@@ -19,9 +19,8 @@ public class PaymentController {
 
     @GetMapping("/vnpay-return")
     public ResponseEntity<?> vnpayReturn(@RequestParam Map<String, String> allParams) {
-        System.out.println("Received VNPay callback params: " + allParams);
             String result = paymentService.handleVnPayReturn(allParams);
-            if(result.equals("Successful payment")){
+            if(result.equals("Successful payment")) {
                 return ResponseEntity.ok(result);
             }
             return ResponseEntity.badRequest().body(result);

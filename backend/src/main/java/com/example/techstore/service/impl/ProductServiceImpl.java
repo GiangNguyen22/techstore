@@ -11,8 +11,10 @@ import com.example.techstore.service.ProductService;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -24,6 +26,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     private ProductMapper productMapper;
+
+    @Autowired
+    private CloudinaryService cloudinaryService;
 
     @Override
     public boolean isAvailable(Product product) {
@@ -67,13 +72,16 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product addProduct(ProductDto productDto) {
+    public Product addProduct(ProductDto productDto, MultipartFile file) {
         Product product = productMapper.mapToProductEntity(productDto);
+        Map uploadResult = cloudinaryService.upLoadFile(file);
+        String thumbnail = (String) uploadResult.get("secure_url");
+        product.setThumbnail(thumbnail);
         return productRepository.save(product);
     }
 
     @Override
-    public Product updateProduct(ProductDto productDto, Integer id) {
+    public Product updateProduct(ProductDto productDto, MultipartFile file, Integer id) {
         Product product = productRepository.findById(id).orElseThrow(()-> new ResourceNotFoundEx("Product not found "));
         productDto.setId(product.getId());
         return productRepository.save(productMapper.mapToProductEntity(productDto));

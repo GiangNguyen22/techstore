@@ -1,18 +1,22 @@
 package com.example.techstore.controller;
 
+import com.cloudinary.api.exceptions.ApiException;
 import com.example.techstore.dto.ProductDto;
 import com.example.techstore.entity.Product;
 import com.example.techstore.service.ProductService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:3000")
 public class ProductController {
 
     @Autowired
@@ -42,15 +46,19 @@ public class ProductController {
         return ResponseEntity.ok(productList);
     }
 
-    @PostMapping
-    public ResponseEntity<Product> addProduct(@RequestBody ProductDto productDto) {
-        Product product = productService.addProduct(productDto);
+    @PostMapping(value = "/upload")
+    public ResponseEntity<Product> addProduct(@RequestPart("productDto") ProductDto productDto, @RequestPart("file") MultipartFile file) {
+        System.out.println("productDtoJson = " + productDto);
+        System.out.println("file = " + file.getOriginalFilename());
+
+        Product product = productService.addProduct(productDto, file);
         return ResponseEntity.ok(product);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Product> updateProduct(@RequestBody ProductDto productDto, @PathVariable Integer id) {
-        Product product = productService.updateProduct(productDto, id);
+    public ResponseEntity<Product> updateProduct(@RequestPart("productDto") ProductDto productDto, @RequestPart(value = "file", required = false) MultipartFile file,
+                                                 @PathVariable Integer id) {
+        Product product = productService.updateProduct(productDto, file, id);
         return ResponseEntity.ok(product);
     }
 
