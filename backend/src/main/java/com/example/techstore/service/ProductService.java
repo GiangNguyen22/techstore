@@ -1,6 +1,7 @@
 package com.example.techstore.service;
 
 import com.example.techstore.dto.ProductDto;
+import com.example.techstore.dto.response.TopProductResponse;
 import com.example.techstore.entity.Product;
 import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,10 @@ public interface ProductService{
     List<ProductDto> searchProductsByKey(String keyword);
 
     Product fetchProductById(int productId) throws Exception;
+
+    List<Product> filterByPrice(Double minPrice, Double maxPrice);
+
+    List<TopProductResponse> getTopProducts();
 
 //    List<ProductDto> findProductByCategory(Integer categoryId);
 }

@@ -17,6 +17,7 @@ import java.util.Date;
 @Builder
 public class OrderDetailDto {
     private int id;
+    private String customerName;
     private LocalDateTime orderDate;
     private BigDecimal totalAmount;
     private String productName;

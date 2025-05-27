@@ -3,6 +3,9 @@ package com.example.techstore.service.impl;
 import com.example.techstore.dto.OrderDetailDto;
 import com.example.techstore.dto.request.OrderRequest;
 import com.example.techstore.dto.response.OrderResponse;
+import com.example.techstore.dto.response.PendingAndCanceledOrderResponse;
+import com.example.techstore.dto.response.TotalOrderResponse;
+import com.example.techstore.dto.response.TotalSaleResponse;
 import com.example.techstore.entity.*;
 import com.example.techstore.enums.OrderStatus;
 import com.example.techstore.enums.PaymentMethod;
@@ -150,4 +153,75 @@ public class OrderService {
             throw new RuntimeException("Invalid request");
         }
     }
+
+    public List<OrderDetailDto> getAllOrder() {
+        List<Orders> orders = orderRepository.findAll();
+        return getOrderDetailDtos(orders);
+    }
+
+    public List<OrderDetailDto> searchByCustomerName(String customerName) {
+        List<Orders> orders = orderRepository.searchByCustomerName(customerName);
+        return getOrderDetailDtos(orders);
+
+    }
+
+    private List<OrderDetailDto> getOrderDetailDtos(List<Orders> orders) {
+        return orders.stream().map(orders1 -> {
+            OrderDetailDto orderDetailDto = new OrderDetailDto();
+            orderDetailDto.setId(orders1.getId());
+            orderDetailDto.setOrderDate(orders1.getOrderDate());
+            orderDetailDto.setOrderStatus(orders1.getStatus());
+            orderDetailDto.setTotalAmount(orders1.getTotalAmount());
+            orderDetailDto.setCustomerName(orders1.getUser().getName());
+            return orderDetailDto;
+        }).toList();
+    }
+
+    public TotalOrderResponse getTotalOrder() {
+        LocalDateTime last7Days = LocalDateTime.now().minusDays(7);
+        LocalDateTime previousOrderDate = last7Days.minusDays(7);
+
+        Integer totalOrder =orderRepository.getTotalOrderLast7Days(last7Days);
+        if(totalOrder == null){
+            totalOrder = 0;
+        }
+        Integer totalPrevious = orderRepository.getTotalOrderLast7Days(previousOrderDate);
+
+        double percentage = 0.0;
+        if(totalPrevious != null){
+            if(totalOrder > totalPrevious) {
+                percentage = ((totalOrder / totalPrevious) - 1) * 100 ;
+            }else {
+                percentage = (1 - (totalOrder/totalPrevious)) * 100;
+            }
+        }else{
+            totalPrevious = 0;
+            percentage = 0.0;
+        }
+
+
+        TotalOrderResponse totalOrderResponse = new TotalOrderResponse();
+        totalOrderResponse.setTotalOrders(totalOrder);
+        totalOrderResponse.setPercent(percentage);
+        totalOrderResponse.setPreviousTotalOrders(totalPrevious);
+
+        return totalOrderResponse;
+    }
+
+    public PendingAndCanceledOrderResponse getPendingAndCanceledOrder() {
+        LocalDateTime last7Days = LocalDateTime.now().minusDays(7);
+        List<Orders> orders = orderRepository.findByOrderDateAfter(last7Days);
+        int pendingOrder = 0;
+        int cancelOrder = 0;
+        for( Orders order : orders){
+            if(order.getStatus().equals(OrderStatus.pending)){
+                pendingOrder++;
+            } else if (order.getStatus().equals(OrderStatus.cancelled)) {
+                cancelOrder++;
+
+            }
+        }
+        return new PendingAndCanceledOrderResponse(pendingOrder, cancelOrder);
+    }
 }
+

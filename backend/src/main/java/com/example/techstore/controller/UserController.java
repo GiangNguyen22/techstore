@@ -1,10 +1,12 @@
 package com.example.techstore.controller;
 
 import com.example.techstore.dto.UserDetailsDto;
+import com.example.techstore.dto.UserDto;
 import com.example.techstore.dto.request.UpdateProfileRequest;
 import com.example.techstore.entity.User;
 import com.example.techstore.repository.UserRepository;
 import com.example.techstore.security.repository.UserDetailRepository;
+import com.example.techstore.service.impl.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 
 @RestController
 @RequestMapping("api/user")
@@ -21,7 +24,15 @@ public class UserController {
     private UserDetailsService userDetailsService;
 
     @Autowired
+    private UserService userService;
+
+    @Autowired
     private UserDetailRepository userDetailRepository;
+
+    public ResponseEntity<List<UserDto>> getAllUsers() {
+        List<UserDto> userDetailsDtoList = userService.getAllUsers();
+        return new ResponseEntity<>(userDetailsDtoList, HttpStatus.OK);
+    }
 
     @GetMapping("/profile")
     public ResponseEntity<UserDetailsDto> getUserProfile(Principal principal) {

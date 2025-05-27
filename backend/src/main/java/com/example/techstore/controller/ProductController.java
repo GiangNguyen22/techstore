@@ -1,6 +1,7 @@
 package com.example.techstore.controller;
 
 import com.example.techstore.dto.ProductDto;
+import com.example.techstore.dto.response.TopProductResponse;
 import com.example.techstore.entity.Product;
 import com.example.techstore.service.ProductService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -31,6 +32,23 @@ public class ProductController {
         ProductDto productDto = productService.getProductById(id);
         return ResponseEntity.ok(productDto);
     }
+
+    @GetMapping("/best-selling")
+    public List<TopProductResponse> getTopProducts() {
+        return productService.getTopProducts();
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<List<Product>> getProductsByPriceRange(
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice
+    ) {
+        List<Product> products = productService.filterByPrice(minPrice, maxPrice);
+        return ResponseEntity.ok(products);
+    }
+
+
+
 //    @GetMapping
 //    public ResponseEntity<List<ProductDto>> getProductsByCategory(@RequestParam Integer categoryId) {
 //        List<ProductDto> productDtos = productService.findProductByCategory(categoryId);

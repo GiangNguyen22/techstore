@@ -4,6 +4,8 @@ import com.example.techstore.dto.OrderDetailDto;
 import com.example.techstore.dto.request.OrderRequest;
 import com.example.techstore.dto.request.UpdateOrderStatusRequest;
 import com.example.techstore.dto.response.OrderResponse;
+import com.example.techstore.dto.response.PendingAndCanceledOrderResponse;
+import com.example.techstore.dto.response.TotalOrderResponse;
 import com.example.techstore.entity.Orders;
 import com.example.techstore.service.impl.OrderService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,6 +25,42 @@ public class OrderController {
     @Autowired
     private  OrderService orderService;
 
+    // for admin
+
+    @GetMapping
+    public ResponseEntity<List<OrderDetailDto>> getAllOrder(){
+       List<OrderDetailDto> orderDetailDtoList = orderService.getAllOrder();
+        return new ResponseEntity<>(orderDetailDtoList, HttpStatus.OK);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<OrderDetailDto>> searchByCustomerName(@RequestParam String customerName){
+        List<OrderDetailDto> orderDetailDtoList = orderService.searchByCustomerName(customerName);
+        return new ResponseEntity<>(orderDetailDtoList, HttpStatus.OK);
+    }
+
+    @GetMapping("/total-order")
+    public TotalOrderResponse getTotalOrder(){
+        return orderService.getTotalOrder();
+    }
+
+    @GetMapping("/pending-canceled")
+    public PendingAndCanceledOrderResponse getPendingAndCanceledOrder(){
+        return  orderService.getPendingAndCanceledOrder();
+    }
+
+    @PutMapping("/user/{orderId}/status")
+    public ResponseEntity<?> updateOrderStatus(@PathVariable Integer orderId, @RequestBody UpdateOrderStatusRequest request) {
+        try {
+            Orders updatedOrder = orderService.updateOrderStatus(orderId, request.getOrderStatus());
+            return ResponseEntity.ok(updatedOrder);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    // for user
+
     @PostMapping
     public ResponseEntity<?> createOrder(@RequestBody OrderRequest request, Principal principal, HttpServletRequest httpServletRequest) throws Exception {
         OrderResponse orderResponse = orderService.createOrder(request, principal, httpServletRequest);
@@ -35,15 +73,6 @@ public class OrderController {
         return new ResponseEntity<>(orderDetailDtos, HttpStatus.OK);
     }
 
-    @PutMapping("/user/{orderId}/status")
-    public ResponseEntity<?> updateOrderStatus(@PathVariable Integer orderId, @RequestBody UpdateOrderStatusRequest request) {
-        try {
-            Orders updatedOrder = orderService.updateOrderStatus(orderId, request.getOrderStatus());
-            return ResponseEntity.ok(updatedOrder);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
 
     @PutMapping("/cancel/{id}")
     public ResponseEntity<?> cancelOrder(@PathVariable Integer id,Principal principal){

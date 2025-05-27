@@ -1,6 +1,7 @@
 package com.example.techstore.service.impl;
 
 import com.example.techstore.dto.ProductDto;
+import com.example.techstore.dto.response.TopProductResponse;
 import com.example.techstore.entity.Category;
 import com.example.techstore.entity.Product;
 import com.example.techstore.exceptions.ResourceNotFoundEx;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -47,8 +49,8 @@ public class ProductServiceImpl implements ProductService {
 
         return products.stream().map(product -> {
             ProductDto productDto = productMapper.mapToProductDto(product);
-            productDto.setResources(productMapper.mapToProductResourceDtoList(product.getResourceList()));
-            productDto.setVariants(productMapper.mapToProductVariantDtoList(product.getVariantList()));
+            productDto.setResources(productMapper.mapToProductResourceDtoList(product.getResources()));
+            productDto.setVariants(productMapper.mapToProductVariantDtoList(product.getVariants()));
             return productDto;
         }).toList();
     }
@@ -70,6 +72,30 @@ public class ProductServiceImpl implements ProductService {
     public Product fetchProductById(int productId) throws Exception {
         return productRepository.findById(productId).orElseThrow(BadRequestException::new);
     }
+
+    @Override
+    public List<Product> filterByPrice(Double minPrice, Double maxPrice) {
+        if (minPrice == null) minPrice = 0.0;
+        if (maxPrice == null) maxPrice = Double.MAX_VALUE;
+
+        return productRepository.findByPriceBetween(minPrice, maxPrice);
+    }
+
+    //lấy 10 product bán chạy nhất tuần
+    @Override
+    public List<TopProductResponse> getTopProducts() {
+        LocalDateTime last7Days = LocalDateTime.now().minusDays(7);
+        List<Product>  productList = productRepository.getTop10BestSellingProducts(last7Days);
+
+        return productList.stream().map(product -> {
+            return TopProductResponse.builder()
+                    .name(product.getName())
+                    .thumbnail(product.getThumbnail())
+                    .price(product.getPrice())
+                    .build();
+        }).toList();
+    }
+
 
     @Override
     public Product addProduct(ProductDto productDto, MultipartFile file) {
