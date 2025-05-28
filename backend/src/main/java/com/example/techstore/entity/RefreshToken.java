@@ -24,7 +24,7 @@ public class RefreshToken {
     private User user;
 
     @Column(nullable = false)
-    private Instant expiryDate;
+    private Instant expiryDate= Instant.now().plusSeconds(2592000); // 30 days in seconds
 
 }
 
