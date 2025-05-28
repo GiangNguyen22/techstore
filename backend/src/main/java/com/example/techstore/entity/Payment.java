@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -20,7 +22,7 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
     private Orders order;
 
@@ -30,6 +32,9 @@ public class Payment {
 
     @Enumerated(EnumType.STRING)
     private PaymentStatus status = PaymentStatus.pending;
+
+    @Column(nullable = false)
+    private BigDecimal amount;
 
     @Column(name = "paid_at")
     private LocalDateTime paidAt;

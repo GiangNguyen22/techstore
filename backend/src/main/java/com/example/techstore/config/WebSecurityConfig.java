@@ -7,6 +7,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -19,7 +20,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.security.config.Customizer;
 
 @Configuration
 @EnableWebSecurity
@@ -51,18 +51,6 @@ public class WebSecurityConfig {
         return http.build();
     }
 
-//@Bean
-//public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//    http
-//            .cors(Customizer.withDefaults()) // Bật CORS
-//            .csrf(AbstractHttpConfigurer::disable)
-//            .authorizeHttpRequests((authorize) -> authorize
-//                    .anyRequest().permitAll()  // Mở toàn quyền, không cần auth
-//            );
-//    return http.build();
-//}
-
-
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -75,6 +63,8 @@ public class WebSecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+
+
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return web -> web.ignoring().requestMatchers(publicApis);
