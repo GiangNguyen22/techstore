@@ -4,6 +4,7 @@ import com.example.techstore.dto.UserDetailsDto;
 import com.example.techstore.dto.UserDto;
 import com.example.techstore.dto.request.UpdateProfileRequest;
 import com.example.techstore.entity.User;
+import com.example.techstore.exceptions.ResourceNotFoundEx;
 import com.example.techstore.repository.UserRepository;
 import com.example.techstore.security.repository.UserDetailRepository;
 import com.example.techstore.service.impl.UserService;
@@ -17,7 +18,7 @@ import java.security.Principal;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/user")
+@RequestMapping("/api/user")
 @CrossOrigin(origins = "http://localhost:3000")  // cho phép React app truy cập
 public class UserController {
     @Autowired
@@ -29,9 +30,16 @@ public class UserController {
     @Autowired
     private UserDetailRepository userDetailRepository;
 
+    @GetMapping
     public ResponseEntity<List<UserDto>> getAllUsers() {
         List<UserDto> userDetailsDtoList = userService.getAllUsers();
         return new ResponseEntity<>(userDetailsDtoList, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<UserDto> getUserById(@PathVariable Integer id) {
+        UserDto userDto = userService.getUserById(id);
+        return new ResponseEntity<>(userDto, HttpStatus.OK);
     }
 
     @GetMapping("/profile")
@@ -66,6 +74,12 @@ public class UserController {
 
             userDetailRepository.save(user);
             return new ResponseEntity<>("Profile updated successfully", HttpStatus.OK);
+    }
+
+    @PutMapping("/status")
+    public ResponseEntity<?> updateStatus(Principal principal,@RequestParam boolean isActive) {
+        User user = userService.updateStatus(principal, isActive);
+        return new ResponseEntity<>("User status updated successfully", HttpStatus.OK);
     }
 
 }

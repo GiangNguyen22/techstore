@@ -42,6 +42,8 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/category", "/api/products").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/products/**").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/products/**").permitAll()
                         .requestMatchers(publicApis).permitAll()
                         .anyRequest().authenticated()
                 )

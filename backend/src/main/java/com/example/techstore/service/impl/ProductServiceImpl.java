@@ -49,6 +49,7 @@ public class ProductServiceImpl implements ProductService {
 
         return products.stream().map(product -> {
             ProductDto productDto = productMapper.mapToProductDto(product);
+            productDto.setStatus(product.getStockQuantity() == 0 ? "Out of Stock" : "Active");
             productDto.setResources(productMapper.mapToProductResourceDtoList(product.getResources()));
             productDto.setVariants(productMapper.mapToProductVariantDtoList(product.getVariants()));
             return productDto;
@@ -120,6 +121,15 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(id).orElseThrow(()-> new ResourceNotFoundEx("Product not found "));
         productDto.setId(product.getId());
         productMapper.updateProductEntityFromDto(productDto, product);
+
+        long start = System.currentTimeMillis();
+        Map uploadResult = cloudinaryService.upLoadFile(file);
+        long duration = System.currentTimeMillis() - start;
+        System.out.println("Upload time: " + duration + "ms");
+
+        String thumbnail = (String) uploadResult.get("secure_url");
+            product.setThumbnail(thumbnail);
+
 
         // Gán lại mối quan hệ ngược
         if (product.getVariants() != null) {
