@@ -1,5 +1,5 @@
 package com.example.techstore.enums;
 
 public enum PaymentStatus {
-    pending, success, failed
+    pending, success, failed, Pending, Completed, paid, cancelled
 }

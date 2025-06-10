@@ -12,13 +12,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
+import com.example.techstore.service.impl.UserService;
 
 import java.security.Principal;
 import java.util.List;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
-@RequestMapping("api/user")
-@CrossOrigin(origins = "http://localhost:3000")  // cho phép React app truy cập
+@RequestMapping("/api/user")
+// @CrossOrigin(origins = "http://localhost:3000")  // cho phép React app truy cập
 public class UserController {
     @Autowired
     private UserDetailsService userDetailsService;
@@ -29,6 +33,7 @@ public class UserController {
     @Autowired
     private UserDetailRepository userDetailRepository;
 
+    @GetMapping("/allusers")
     public ResponseEntity<List<UserDto>> getAllUsers() {
         List<UserDto> userDetailsDtoList = userService.getAllUsers();
         return new ResponseEntity<>(userDetailsDtoList, HttpStatus.OK);
@@ -67,5 +72,7 @@ public class UserController {
             userDetailRepository.save(user);
             return new ResponseEntity<>("Profile updated successfully", HttpStatus.OK);
     }
+    
+
 
 }

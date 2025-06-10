@@ -22,6 +22,7 @@ public class ProductDto {
     private String type;
     private String companyName;
     private Integer categoryId;
+    private String status;
     private List<ProductVariantDto> variants;
     private List<ProductResourceDto> resources;
 }

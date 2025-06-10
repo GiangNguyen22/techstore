@@ -11,9 +11,8 @@ import java.util.List;
 
 @Service
 public class UserService {
-   @Autowired
+    @Autowired
     private UserRepository userRepository;
-
 
     public List<UserDto> getAllUsers() {
         List<User> users = userRepository.findAll();
@@ -24,10 +23,13 @@ public class UserService {
                     .email(user.getEmail())
                     .phone(user.getPhone())
                     .status(user.getIsActive() ? "Active" : "Inactive")
-                    .createdAt(LocalDate.from(user.getCreatedAt()))
+                    .createdAt(
+                            user.getCreatedAt() != null
+                                    ? LocalDate.from(user.getCreatedAt())
+                                    : null)
+
                     .build();
 
         }).toList();
     }
 }
-

@@ -117,7 +117,7 @@ public class PaymentService {
         return payments.stream().map(payment -> PaymentDto.builder()
                 .paymentId(payment.getId())
                 .customerName(payment.getOrder().getUser().getName())
-                .paymentDate(LocalDate.from(payment.getPaidAt()))
+                .paymentDate(payment.getPaidAt() == null? null : LocalDate.from(payment.getPaidAt()))
                 .paymentStatus(String.valueOf(payment.getStatus()))
                 .amount(payment.getAmount())
                 .build()).toList();

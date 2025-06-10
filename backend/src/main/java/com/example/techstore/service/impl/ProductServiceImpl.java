@@ -51,6 +51,7 @@ public class ProductServiceImpl implements ProductService {
             ProductDto productDto = productMapper.mapToProductDto(product);
             productDto.setResources(productMapper.mapToProductResourceDtoList(product.getResources()));
             productDto.setVariants(productMapper.mapToProductVariantDtoList(product.getVariants()));
+            productDto.setStatus(product.getStockQuantity() == 0 ? "Out of Stock" : "Active");
             return productDto;
         }).toList();
     }
