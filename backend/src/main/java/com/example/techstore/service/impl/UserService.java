@@ -32,8 +32,8 @@ public class UserService {
         }).toList();
     }
 
-    public User updateStatus(Principal principal, boolean isActive) {
-        User user = userRepository.findByEmail(principal.getName()).orElseThrow(() -> new RuntimeException("User doesn't exist"));
+    public User updateStatus(Integer userId, boolean isActive) {
+        User user = userRepository.findById(userId).orElseThrow(()->new RuntimeException("User Not Found"));
         user.setIsActive(isActive);
         return userRepository.save(user);
 
