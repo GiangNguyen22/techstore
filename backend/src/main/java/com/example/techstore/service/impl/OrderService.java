@@ -18,6 +18,7 @@ import com.example.techstore.service.ProductService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import org.apache.coyote.BadRequestException;
+import org.hibernate.query.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
@@ -222,6 +223,10 @@ public class OrderService {
             }
         }
         return new PendingAndCanceledOrderResponse(pendingOrder, cancelOrder);
+    }
+
+    public Orders getOrderById(Integer orderId) {
+        return orderRepository.findById(orderId).orElseThrow(() -> new ResourceNotFoundEx("Order not found"));
     }
 }
 
