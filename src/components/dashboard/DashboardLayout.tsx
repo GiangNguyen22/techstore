@@ -70,10 +70,12 @@ import AddProduct from './content/AddProduct';
 import ProductList from './content/ProductList';
 import AdminRole from './content/AdminRole';
 import ControlAuthority from './content/ControlAuthority';
+import FooterComponent from '../commom/FooterComponent';
 
 
 const DashboardLayout = () => {
   const [activeMenu, setActiveMenu] = useState('Dashboard_Admin');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   // Menu dữ liệu giả lập (có thể thay bằng props sau này)
   const menuItems = [
     { icon: require('lucide-react').Home, label: 'Dashboard_Admin', active: true },
@@ -191,7 +193,7 @@ const DashboardLayout = () => {
 //   );
 // };
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50">
+    <div className="flex h-[2000px] overflow-hidden bg-gray-50">
       <Sidebar
         menuItems={menuItems}
         productMenuItems={productMenuItems}
@@ -199,6 +201,8 @@ const DashboardLayout = () => {
         actionMenuItems={action}
         activeMenu={activeMenu}
         setActiveMenu={setActiveMenu}
+        isCollapsed={sidebarCollapsed}
+  onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
       />
 
       <div className="flex-1 overflow-hidden">
@@ -206,6 +210,8 @@ const DashboardLayout = () => {
         <div className="p-6 overflow-y-auto h-full">
           {renderContent()}
         </div>
+        {/* Footer */}
+        <FooterComponent />
       </div>
     </div>
   );
