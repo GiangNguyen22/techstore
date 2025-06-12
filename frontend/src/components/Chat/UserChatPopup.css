@@ -6,13 +6,28 @@
   height: 50px;
   background-color: #007bff;
   color: white;
-  font-size: 28px;
+  font-size: 30px;
   text-align: center;
   line-height: 50px;
   border-radius: 50%;
   cursor: pointer;
   z-index: 999;
   box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.chat-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: red;
+  color: white;
+  font-size: 12px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .chat-popup {

@@ -1,104 +1,136 @@
-import React, { useEffect, useState } from 'react';
-import { Client } from '@stomp/stompjs';
-import SockJS from 'sockjs-client';
-import './UserChatPopup.css';
+import React, { useEffect, useState } from "react";
+import { Client } from "@stomp/stompjs";
+import SockJS from "sockjs-client";
+import "./UserChatPopup.css";
 
-const UserChatPopup = ({authToken, username}) => {
-  
+const UserChatPopup = ({ authToken, username }) => {
+  const chatBodyRef = React.useRef(null);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([]);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
   const [stompClient, setStompClient] = useState(null);
 
+  useEffect(() => {
+    if (!authToken || !username) return; // đợi token có
 
-useEffect(() => {
-   if (!authToken || !username) return;  // đợi token có
+    const fetchHistory = async () => {
+      try {
+        const res = await fetch(
+          `http://localhost:8080/api/chat/history/admin/${username}`,
+          {
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
-  const fetchHistory = async () => {
-    try {
-      const res = await fetch(`http://localhost:8080/api/chat/history/admin/${username}`, {
-        headers: {
-          'Authorization': `Bearer ${authToken}`,
-          'Content-Type': 'application/json',
-        },
-      });
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(`HTTP ${res.status} - ${text}`);
+        }
 
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`HTTP ${res.status} - ${text}`);
+        const data = await res.json();
+
+        const normalized = data.map((msg) => ({
+          ...msg,
+          senderName: msg.sender,
+          receiverName: msg.receiver,
+        }));
+
+        setMessages(normalized);
+      } catch (err) {
+        console.error("Lỗi lấy lịch sử chat:", err.message);
       }
+    };
 
-      const data = await res.json();
+    fetchHistory(); // gọi API lịch sử
 
-      const normalized = data.map(msg => ({
-        ...msg,
-        senderName: msg.sender,
-        receiverName: msg.receiver,
-      }));
+    // Khởi tạo kết nối websocket
+    const socket = new SockJS("http://localhost:8080/ws");
+    const client = new Client({
+      webSocketFactory: () => socket,
+      onConnect: () => {
+        client.subscribe(`/user/${username}/private`, (msg) => {
+          const payload = JSON.parse(msg.body);
+          setMessages((prev) => [...prev, payload]);
 
-      setMessages(normalized);
-    } catch (err) {
-      console.error('Lỗi lấy lịch sử chat:', err.message);
-    }
-  };
+          if (!open) {
+            setUnreadCount((prev) => prev + 1); // tăng badge nếu chat đang đóng
+          }
+        });
 
-  fetchHistory(); // gọi API lịch sử
+        client.publish({
+          destination: "/app/message",
+          body: JSON.stringify({ senderName: username, status: "JOIN" }),
+        });
+      },
+      onStompError: (err) => {
+        console.error("STOMP error", err);
+      },
+    });
 
-  // Khởi tạo kết nối websocket
-  const socket = new SockJS('http://localhost:8080/ws');
-  const client = new Client({
-    webSocketFactory: () => socket,
-    onConnect: () => {
-      client.subscribe(`/user/${username}/private`, (msg) => {
-        const payload = JSON.parse(msg.body);
-        setMessages((prev) => [...prev, payload]);
-      });
+    client.activate();
+    setStompClient(client);
 
-      client.publish({
-        destination: '/app/message',
-        body: JSON.stringify({ senderName: username, status: 'JOIN' }),
-      });
-    },
-    onStompError: (err) => {
-      console.error('STOMP error', err);
-    },
-  });
-
-  client.activate();
-  setStompClient(client);
-
-  return () => {
-    client.deactivate();
-  };
-
-}, [authToken, username]); // thêm `authToken` vào dependency để chạy lại khi token có
+    return () => {
+      client.deactivate();
+    };
+  }, [authToken, username, open]); // thêm `authToken` vào dependency để chạy lại khi token có
 
   const sendMessage = () => {
-    if (message.trim() !== '' && stompClient) {
+    if (message.trim() !== "" && stompClient) {
       const msg = {
         senderName: username,
-        receiverName: 'admin',
+        receiverName: "admin",
         message,
       };
 
       stompClient.publish({
-        destination: '/app/private-message',
+        destination: "/app/private-message",
         body: JSON.stringify(msg),
       });
 
-      setMessage('');
+      setMessage("");
     }
   };
 
+  useEffect(() => {
+  scrollToBottom();
+}, [messages, open]); // khi có tin nhắn mới hoặc mở lại khung chat
+
+
+  const scrollToBottom = () => {
+  if (chatBodyRef.current) {
+    chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
+  }
+};
+
+
   return (
     <>
-      <div id="chat-icon" onClick={() => setOpen(!open)}>💬</div>
+      <div
+        id="chat-icon"
+        onClick={() => {
+          setOpen(!open);
+          if (!open) setUnreadCount(0); // reset khi mở khung chat
+        }}
+      >
+        💬
+        {unreadCount > 0 && <span className="chat-badge">{unreadCount}</span>}
+      </div>
+
       {open && (
         <div className="chat-popup">
           <div className="chat-header">Support Chat</div>
-          <div className="chat-body">
+          <div className="chat-body" ref={chatBodyRef}>
             {messages.map((msg, index) => (
-              <div key={index} className={`chat-message ${msg.senderName === username ? 'me' : 'admin'}`}>
+              <div
+                key={index}
+                className={`chat-message ${msg.senderName === username ? "me" : "admin"
+                  }`}
+              >
                 <span>{msg.message}</span>
               </div>
             ))}
@@ -110,7 +142,7 @@ useEffect(() => {
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Type a message..."
               onKeyDown={(e) => {
-                if (e.key === 'Enter') {
+                if (e.key === "Enter") {
                   e.preventDefault();
                   sendMessage();
                 }
