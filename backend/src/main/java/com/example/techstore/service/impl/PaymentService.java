@@ -108,6 +108,7 @@ public class PaymentService {
             // Thanh toán thất bại
             order.setStatus(OrderStatus.cancelled);
             orderRepository.save(order);
+            System.out.println("False");
             return "Failed payment";
         }
     }

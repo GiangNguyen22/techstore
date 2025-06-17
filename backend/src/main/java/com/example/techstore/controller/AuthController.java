@@ -31,6 +31,7 @@ public class AuthController {
     UserDetailsService userDetailsService;
     @Autowired
     JWTTokenHelper jwtTokenHelper;
+
     @Autowired
     RefreshTokenService refreshTokenService;  // Thêm service refresh token
 
@@ -87,4 +88,26 @@ public class AuthController {
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
+//    @PostMapping("/refreshToken")
+//    public ResponseEntity<?> refreshToken(@RequestBody Map<String, String> request) {
+//        String token = request.get("refreshToken");
+//
+//        if (token == null || token.isEmpty()) {
+//            return ResponseEntity.badRequest().body(Map.of("error", "Missing refresh token"));
+//        }
+//
+//        return refreshTokenService.findByToken(token)
+//                .map(refreshToken -> {
+//                    if (refreshTokenService.isTokenExpired(refreshToken)) {
+//                        return ResponseEntity.status(401).body(Map.of("error", "Refresh token expired"));
+//                    }
+//
+//                    User user = refreshToken.getUser();
+//                    String accessToken = jwtService.generateToken(user.getEmail(), user.getId());
+//
+//                    return ResponseEntity.ok(Map.of("accessToken", accessToken));
+//                })
+//                .orElseGet(() -> ResponseEntity.status(401).body(Map.of("error", "Invalid refresh token")));
+//    }
+
 }

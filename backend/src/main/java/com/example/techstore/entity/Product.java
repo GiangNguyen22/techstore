@@ -32,6 +32,7 @@ public class Product {
     @Column(name = "stock_quantity", nullable = false)
     private Integer stockQuantity;
 
+    @Column(name = "thumbnail")
     private String thumbnail;
 
     private  String type;
