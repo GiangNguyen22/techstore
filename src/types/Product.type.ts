@@ -12,7 +12,6 @@ export interface Product {
   name: string;
   description: string;
   price: number;
-  discount: number;
   image: string;
   thumbnail: string;
   type: string;
@@ -22,5 +21,5 @@ export interface Product {
   categoryId: number;
   position: { top: string; left: string };
   imageIndex: number;
-  variants?: ProductVariant[];  // Thêm mảng biến thể vào đây
+  variants: ProductVariant[];  // Thêm mảng biến thể vào đây
 }

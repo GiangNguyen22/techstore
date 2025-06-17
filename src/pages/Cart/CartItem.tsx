@@ -3,7 +3,7 @@ import { Minus, Plus, Trash2 } from "lucide-react";
 
 interface CartItemProps {
   item: {
-    id: number;
+    productVariantId: number;
     name: string;
     image: string;
     productPrice: number;
@@ -23,18 +23,19 @@ const CartItem: React.FC<CartItemProps> = ({
   onRemove,
   currentQuantityInCart,
 }) => {
-  const currentQty = currentQuantityInCart(item.id); // tổng số lượng đã có trong giỏ hàng
-  const remaining = item.stockQuantity - currentQty + item.quantity; // trừ nhưng cộng lại của chính item này
-
-  const disableIncrease = item.quantity >= remaining;
+const totalInCart = currentQuantityInCart(item.productVariantId);
+const remaining = Math.max(0, item.stockQuantity - (totalInCart - item.quantity)); 
+const disableIncrease = item.quantity >= remaining;
+// console.log(item);
+const BACKEND_URL = "http://localhost:8080";
 
   return (
     <div className="grid grid-cols-12 items-center border-b pb-4">
       <div className="col-span-5 flex gap-4 items-center">
         <img
-          src={item.image}
+               src={item.image ? BACKEND_URL + item.image : item.image}
           alt={item.name}
-          className="w-20 h-20 object-cover border"
+  className="w-36 h-24 object-contain  rounded-md"
         />
         <div>
           <div className="font-semibold">{item.name}</div>

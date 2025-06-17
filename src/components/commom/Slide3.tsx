@@ -1,9 +1,17 @@
-import React, { useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Autoplay ,Pagination} from "swiper/modules";
+import { Navigation, Autoplay } from "swiper/modules";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { getCategories } from "../../api/categories"; // API lấy category
 import "swiper/css";
 import "swiper/css/navigation";
+interface SlideItem {
+  title: string;
+  desc: string;
+  image: string;
+  link?: string; 
+}
 
 const items = [
   {
@@ -55,6 +63,34 @@ const items = [
 
 const Slide3 = () => {
   const swiperRef = useRef<any>(null);
+  const navigate = useNavigate();
+const [itemsWithLink, setItemsWithLink] = React.useState<SlideItem[]>(items);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const categories = await getCategories(); // lấy danh sách category từ API
+        // map items, tìm category trùng title (chú ý xử lý chữ hoa/thường, dấu)
+        const updatedItems = items.map((item) => {
+          const matchedCategory = categories.find(
+            (cat: any) =>
+              cat.name.toLowerCase().trim() === item.title.toLowerCase().trim()
+          );
+          if (matchedCategory) {
+            return {
+              ...item,
+              link: `/category/${matchedCategory.id}`, // hoặc slug nếu có
+            };
+          }
+          return item; // nếu ko tìm thấy thì giữ nguyên
+        });
+        setItemsWithLink(updatedItems);
+      } catch (error) {
+        console.error("Lỗi lấy danh mục:", error);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   return (
     <div
@@ -76,7 +112,7 @@ const Slide3 = () => {
 
       {/* Swiper */}
       <Swiper
-        onSwiper={(swiper:any) => (swiperRef.current = swiper)}
+        onSwiper={(swiper: any) => (swiperRef.current = swiper)}
         modules={[Navigation, Autoplay]}
         slidesPerView={5}
         spaceBetween={20}
@@ -86,9 +122,16 @@ const Slide3 = () => {
           disableOnInteraction: false,
         }}
       >
-        {items.map((item, index) => (
+        {itemsWithLink.map((item, index) => (
           <SwiperSlide key={index}>
-            <div className="flex flex-col items-center text-white text-center cursor-pointer">
+            <div
+              onClick={() => {
+                if (item.link) navigate(item.link);
+              }}
+              className={`flex flex-col items-center text-white text-center cursor-pointer ${
+                !item.link ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+            >
               <div className="bg-red-600 rounded-full p-4 mb-3">
                 <img src={item.image} alt={item.title} className="w-12 h-12" />
               </div>

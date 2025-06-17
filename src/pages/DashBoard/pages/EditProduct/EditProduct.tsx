@@ -40,45 +40,33 @@ const EditProduct = () => {
     queryFn: () => getCategories(),
   });
 
-  const handleAdd = async (newProduct: any) => {
+  // Hàm thống nhất cho Add/Edit/Delete
+  const handleSubmit = async (
+    mode: "add" | "edit" | "delete",
+    productData: any
+  ) => {
     try {
-      await addProduct(newProduct);
+      if (mode === "add") {
+        await addProduct(productData);
+      } else if (mode === "edit") {
+        if (!("id" in productData)) throw new Error("Product id missing");
+        await updateProduct(productData.id, productData);
+      } else if (mode === "delete") {
+        if (!("id" in productData)) throw new Error("Product id missing");
+        await deleteProduct(productData.id);
+      }
       setOpen(false);
       refetchProducts();
     } catch (error) {
-      console.error("Lỗi thêm sản phẩm:", error);
-    }
-  };
-
-  const handleEdit = async (updatedProduct: any) => {
-    try {
-      if (!("id" in updatedProduct)) throw new Error("Product id missing");
-      await updateProduct(updatedProduct.id, updatedProduct);
-      setOpen(false);
-      refetchProducts();
-    } catch (error) {
-      console.error("Lỗi sửa sản phẩm:", error);
-    }
-  };
-
-  const handleDelete = async (productToDelete: any) => {
-    try {
-      if (!("id" in productToDelete)) throw new Error("Product id missing");
-      await deleteProduct(productToDelete.id);
-      setOpen(false);
-      refetchProducts();
-    } catch (error) {
-      console.error("Lỗi xoá sản phẩm:", error);
+      console.error(`Lỗi ${mode} sản phẩm:`, error);
     }
   };
 
   if (productLoading || categoryLoading) return <div>Loading...</div>;
   if (productError)
-    return <div>Error loading products: {productError.message}</div>;
+    return <div>Error loading products: {(productError as Error).message}</div>;
   if (categoryError)
-    return <div>Error loading categories: {categoryError.message}</div>;
-  console.log("Category data:", categoryData);
-  console.log("Product data:", productData);
+    return <div>Error loading categories: {(categoryError as Error).message}</div>;
 
   return (
     <div className="bg-gradient-to-br from-gray-50 via-slate-50 to-zinc-50 min-h-screen">
@@ -87,36 +75,21 @@ const EditProduct = () => {
           open={open}
           setOpen={setOpen}
           categoryData={categoryData}
-          product={
-            !product || Object.keys(product).length === 0 ? null : product
-          }
+          product={!product || Object.keys(product).length === 0 ? null : product}
           formMode={formMode}
-          onAdd={handleAdd}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
+          onSubmit={handleSubmit} // Truyền hàm thống nhất
         />
-        
-        {/* Header Section */}
-        <div className="mb-6 px-4">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2 tracking-tight">
-            Quản lý sản phẩm
-          </h1>
-          <p className="text-gray-600 mb-6 text-lg font-medium">Thiết kế. Sáng tạo. Hoàn hảo.</p>
-          
-          <button
-            onClick={() => {
-              setProduct(null);
-              setFormMode("add");
-              setOpen(true);
-            }}
-            className="inline-flex items-center px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-2xl shadow-lg shadow-blue-500/20 hover:shadow-xl hover:shadow-blue-500/30 transform hover:scale-105 transition-all duration-300 active:scale-95"
-          >
-            <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
-            Thêm sản phẩm mới
-          </button>
-        </div>
+
+        <button
+          onClick={() => {
+            setProduct(null);
+            setFormMode("add");
+            setOpen(true);
+          }}
+          className="mb-4 rounded bg-sky-600 py-2 px-4 text-sm text-white"
+        >
+          Thêm sản phẩm
+        </button>
 
         {/* Products Grid - Tăng độ rộng của mỗi item */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 px-4">
@@ -186,39 +159,40 @@ const EditProduct = () => {
                   )}
                 </div>
 
-                {/* Action Buttons - Cố định ở dưới chân */}
-                <div className="px-8 pb-8 mt-auto">
-                  <div className="grid grid-cols-2 gap-4">
-                    <button
-                      onClick={() => {
-                        setProduct(item);
-                        setFormMode("edit");
-                        setOpen(true);
-                      }}
-                      className="flex items-center justify-center px-6 py-4 bg-gradient-to-r from-amber-400 via-orange-400 to-yellow-400 text-white font-semibold rounded-2xl shadow-lg shadow-amber-500/30 hover:shadow-xl hover:shadow-amber-500/40 transform hover:scale-105 transition-all duration-300 text-base hover:-translate-y-1"
-                    >
-                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
-                      Sửa
-                    </button>
-                    <button
-                      onClick={() => {
-                        setProduct(item);
-                        setFormMode("delete");
-                        setOpen(true);
-                      }}
-                      className="flex items-center justify-center px-6 py-4 bg-gradient-to-r from-red-400 via-pink-500 to-rose-500 text-white font-semibold rounded-2xl shadow-lg shadow-red-500/30 hover:shadow-xl hover:shadow-red-500/40 transform hover:scale-105 transition-all duration-300 text-base hover:-translate-y-1"
-                    >
-                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                      Xóa
-                    </button>
-                  </div>
-                </div>
+                {/* Hiển thị biến thể nếu có */}
+                {Array.isArray(item.variants) &&
+                  item.variants.map((v, idx) => (
+                    <li key={idx} className="ml-4 list-disc">
+                      Màu: <span className="font-medium">{v.color}</span>, Kích
+                      cỡ: <span className="font-medium">{v.size}</span>, Số
+                      lượng: <span className="font-medium">{v.stockQuantity}</span>
+                    </li>
+                  ))}
               </Card>
-            </div>
+
+              <div className="w-full flex gap-2 mt-2">
+                <button
+                  onClick={() => {
+                    setProduct(item);
+                    setFormMode("edit");
+                    setOpen(true);
+                  }}
+                  className="rounded bg-sky-600 py-2 px-4 text-sm text-white w-1/2"
+                >
+                  Sửa sản phẩm
+                </button>
+                <button
+                  onClick={() => {
+                    setProduct(item);
+                    setFormMode("delete");
+                    setOpen(true);
+                  }}
+                  className="rounded bg-red-600 py-2 px-4 text-sm text-white w-1/2"
+                >
+                  Xoá sản phẩm
+                </button>
+              </div>
+            </li>
           ))}
         </div>
 
