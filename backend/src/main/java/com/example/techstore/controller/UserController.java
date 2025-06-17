@@ -80,10 +80,10 @@ public class UserController {
             return new ResponseEntity<>("Profile updated successfully", HttpStatus.OK);
     }
 
-    @PutMapping("/status")
-    public ResponseEntity<?> updateStatus(Principal principal,@RequestParam boolean isActive) {
-        User user = userService.updateStatus(principal, isActive);
-        return new ResponseEntity<>("User status updated successfully", HttpStatus.OK);
+    @PutMapping("/{id}/status")
+    public ResponseEntity<?> updateStatus(@PathVariable(value = "id") Integer userId,@RequestParam boolean isActive) {
+        User user = userService.updateStatus(userId, isActive);
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
 }

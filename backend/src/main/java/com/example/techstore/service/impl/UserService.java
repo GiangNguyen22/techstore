@@ -6,6 +6,7 @@ import com.example.techstore.entity.User;
 import com.example.techstore.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PutMapping;
 
 import java.security.Principal;
 import java.time.LocalDate;
@@ -31,8 +32,8 @@ public class UserService {
         }).toList();
     }
 
-    public User updateStatus(Principal principal, boolean isActive) {
-        User user = userRepository.findByEmail(principal.getName()).orElseThrow(() -> new RuntimeException("User doesn't exist"));
+    public User updateStatus(Integer userID, boolean isActive) {
+        User user = userRepository.findById(userID).orElseThrow(() -> new RuntimeException("User doesn't exist"));
         user.setIsActive(isActive);
         return userRepository.save(user);
 

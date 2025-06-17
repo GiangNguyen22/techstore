@@ -44,6 +44,8 @@ public class WebSecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/category", "/api/products").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/products/**").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/api/products/**").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/user/**").permitAll()
+
                         .requestMatchers(publicApis).permitAll()
                         .anyRequest().authenticated()
                 )
