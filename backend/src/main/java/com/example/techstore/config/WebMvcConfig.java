@@ -10,6 +10,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // Đường dẫn file system lưu ảnh uploads/images, cách khai báo phải đúng với folder bạn dùng
         registry.addResourceHandler("/images/**")
-                .addResourceLocations("file:D:/Techstore/BE/techstore/backend/uploads/images/");
+                .addResourceLocations("file:/home/pvd/Desktop/BE&FE/techstore/backend/uploads/images/");
     }
 }
