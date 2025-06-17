@@ -47,6 +47,10 @@ public class ProductMapper {
         product.setStockQuantity(productDto.getStockQuantity());
         product.setType(productDto.getType());
         product.setCompanyName(productDto.getCompanyName());
+        System.out.println("Old Thumbnail: " + product.getThumbnail());
+        System.out.println("New Thumbnail: " + productDto.getThumbnail());
+        product.setThumbnail(productDto.getThumbnail());
+
 
         // Update category
         Category category = categoryService.getCategoryById(productDto.getCategoryId());
@@ -148,7 +152,10 @@ public class ProductMapper {
 
     public Product mapToProductEntity(ProductDto productDto) {
         Product product = modelMapper.map(productDto, Product.class);
+        product.setThumbnail(productDto.getThumbnail());
         Category category = categoryService.getCategoryById(productDto.getCategoryId());
+
+
         if(category != null) {
             product.setCategory(category);
         }

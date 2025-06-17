@@ -20,6 +20,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.multipart.MultipartResolver;
+import org.springframework.web.multipart.support.StandardServletMultipartResolver;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -31,7 +35,8 @@ public class WebSecurityConfig {
     private JWTTokenHelper jwtTokenHelper;
 
     private static final String[] publicApis = {
-            "/api/auth/**"
+            "/api/auth/**",
+            "/api/order"
     };
 
     @Bean
@@ -42,7 +47,13 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/category", "/api/products").permitAll()
+                        .requestMatchers("/images/**").permitAll() // 👈 Quan trọng!
                         .requestMatchers(publicApis).permitAll()
+                        .requestMatchers("/api/payment/vnpay-return").permitAll()
+                        .requestMatchers("/api/chat/**").permitAll()
+                        .requestMatchers("/ws/**").permitAll()
+
+                        .requestMatchers("/api/order").authenticated()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(new JWTAuthenticationFilter(userDetailsService, jwtTokenHelper),
@@ -52,12 +63,17 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    CorsConfigurationSource corsConfigurationSource() {
+    public MultipartResolver multipartResolver() {
+        return new StandardServletMultipartResolver();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("http://localhost:3000");  // frontend origin
-        configuration.addAllowedMethod("*");  // cho phép tất cả các phương thức GET, POST, ...
-        configuration.addAllowedHeader("*");  // cho phép tất cả các header
-        configuration.setAllowCredentials(true); // nếu bạn dùng cookie hoặc credentials
+        configuration.setAllowedOrigins(List.of("http://localhost:3000")); // chính xác origin của FE
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // cụ thể hơn là tốt nhất
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true); // nếu frontend gửi kèm cookie hoặc header Authorization
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
@@ -65,10 +81,11 @@ public class WebSecurityConfig {
     }
 
 
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return web -> web.ignoring().requestMatchers(publicApis);
-    }
+//
+//    @Bean
+//    public WebSecurityCustomizer webSecurityCustomizer() {
+//        return web -> web.ignoring().requestMatchers(publicApis);
+//    }
 
 
     //tạo đối tượng AuthenticationManager để xác thực người dùng

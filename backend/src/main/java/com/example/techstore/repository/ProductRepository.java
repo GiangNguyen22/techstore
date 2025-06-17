@@ -27,4 +27,6 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
                 LIMIT 10
             """, nativeQuery = true)
     List<Product> getTop10BestSellingProducts(LocalDateTime last7Days);
+
+    List<Product> findByNameContainingIgnoreCase(String keyword);
 }

@@ -62,21 +62,29 @@ public class ProductController {
         return ResponseEntity.ok(productList);
     }
 
-    @PostMapping(value = "/upload")
-    public ResponseEntity<Product> addProduct(@RequestPart("productDto") ProductDto productDto, @RequestPart("file") MultipartFile file) {
-        System.out.println("productDtoJson = " + productDto);
-        System.out.println("file = " + file.getOriginalFilename());
-
-        Product product = productService.addProduct(productDto, file);
+    @PostMapping
+    public ResponseEntity<Product> addProduct(@RequestBody ProductDto productDto) {
+        Product product = productService.addProduct(productDto);
         return ResponseEntity.ok(product);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Product> updateProduct(@RequestPart("productDto") ProductDto productDto, @RequestPart(value = "file", required = false) MultipartFile file,
-                                                 @PathVariable Integer id) {
-        Product product = productService.updateProduct(productDto, file, id);
+    public ResponseEntity<Product> updateProduct(@RequestBody ProductDto productDto, @PathVariable Integer id) {
+        Product product = productService.updateProduct(productDto, id);
         return ResponseEntity.ok(product);
     }
+
+
+
+    @PostMapping("/upload-thumbnail")
+    public ResponseEntity<String> uploadThumbnail(@RequestPart("file") MultipartFile file) {
+        String thumbnailUrl = productService.saveThumbnail(file);
+        return ResponseEntity.ok(thumbnailUrl); // Trả về URL ảnh
+    }
+
+
+
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Integer id) {
