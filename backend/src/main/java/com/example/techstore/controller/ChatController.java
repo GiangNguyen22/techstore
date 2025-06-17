@@ -30,11 +30,8 @@ public class ChatController {
         saved.setTimestamp(new Timestamp(System.currentTimeMillis()));
         chatRepo.save(saved);
 
-        simpMessagingTemplate.convertAndSendToUser(
-                message.getReceiverName(),
-                "/private",  // full destination: /user/{receiver}/private
-                message
-        );
+        simpMessagingTemplate.convertAndSendToUser(message.getReceiverName(), "/private",  // full destination: /user/{receiver}/private
+                 message);
         simpMessagingTemplate.convertAndSendToUser(message.getSenderName(), "/private", message);
         System.out.println("Sent to " + message.getReceiverName() + ": " + message.getMessage());
     }
