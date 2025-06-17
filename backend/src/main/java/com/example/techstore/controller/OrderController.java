@@ -9,6 +9,7 @@ import com.example.techstore.dto.response.TotalOrderResponse;
 import com.example.techstore.entity.Orders;
 import com.example.techstore.service.impl.OrderService;
 import jakarta.servlet.http.HttpServletRequest;
+import org.hibernate.query.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -57,6 +58,12 @@ public class OrderController {
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getOrderById(@PathVariable(value = "id") Integer orderId) {
+        Orders order = orderService.getOrderById(orderId);
+        return ResponseEntity.ok(order);
     }
 
     // for user
