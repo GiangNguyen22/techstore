@@ -3,6 +3,7 @@ package com.example.techstore.service;
 import com.example.techstore.dto.ProductDto;
 import com.example.techstore.dto.response.TopProductResponse;
 import com.example.techstore.entity.Product;
+import com.example.techstore.entity.ProductVariant;
 import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,9 +16,10 @@ public interface ProductService{
 
     List<ProductDto> getAllProducts(Integer categoryId);
 
-    Product addProduct(ProductDto productDto, MultipartFile file);
+    Product addProduct(ProductDto productDto);
 
-    Product updateProduct(ProductDto productDto, MultipartFile file, Integer id);
+    Product updateProduct(ProductDto productDto, Integer id);
+    String saveThumbnail(MultipartFile file);
 
     ProductDto getProductById(Integer id);
 
@@ -30,6 +32,8 @@ public interface ProductService{
     List<Product> filterByPrice(Double minPrice, Double maxPrice);
 
     List<TopProductResponse> getTopProducts();
+    ProductVariant fetchProductVariantById(int variantId) throws Exception;
+    ProductVariant saveProductVariant(ProductVariant variant);
 
 //    List<ProductDto> findProductByCategory(Integer categoryId);
 }

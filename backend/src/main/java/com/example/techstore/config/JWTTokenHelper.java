@@ -111,7 +111,11 @@ public class JWTTokenHelper {
     public boolean validateToken(String authToken, UserDetails userDetails) {
         final String email = getEmailFromToken(authToken);
         final Integer userId = getUserIdFromToken(authToken);
-
+        System.out.println("Validating token:");
+        System.out.println("Email from token: " + email);
+        System.out.println("UserId from token: " + userId);
+        System.out.println("Username from userDetails: " + userDetails.getUsername());
+        System.out.println("Token expired? " + isTokenExpired(authToken));
         return (email != null && userId != null && email.equals(userDetails.getUsername())
                 && !isTokenExpired(authToken));
     }

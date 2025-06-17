@@ -34,7 +34,7 @@ public class PaymentController {
 
     @GetMapping("/vnpay-return")
     public void vnpayReturn(@RequestParam Map<String, String> allParams, HttpServletResponse response) throws IOException {
-            String result = paymentService.handleVnPayReturn(allParams);
+        String result = paymentService.handleVnPayReturn(allParams);
         if ("Successful payment".equals(result)) {
             response.sendRedirect("http://localhost:3000/payment-success");
         } else {

@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -45,67 +46,149 @@ public class OrderService {
     private OrderDetailRepository orderDetailRepository;
 
 
-    @Transactional
-    public OrderResponse createOrder(OrderRequest request, Principal principal, HttpServletRequest httpServletRequest) throws Exception {
-        User user = (User) userDetailsService.loadUserByUsername(principal.getName());
-        if(request.getAddress()==null){
-            throw new BadRequestException("Address is required");
+//    @Transactional
+//    public OrderResponse createOrder(OrderRequest request, Principal principal, HttpServletRequest httpServletRequest) throws Exception {
+//        User user = (User) userDetailsService.loadUserByUsername(principal.getName());
+//        if(request.getAddress()==null){
+//            throw new BadRequestException("Address is required");
+//        }
+//        Orders order = Orders.builder()
+//                .status(OrderStatus.pending)
+//                .user(user)
+//                .totalAmount(request.getTotalAmount())
+//                .address(request.getAddress())
+//                .paymentMethod(request.getPaymentMethod())
+//                .build();
+//
+//        List<OrderDetails> orderDetails = request.getOrderDetailRequests().stream().map(orderDetailRequest -> {
+//            try{
+//                Product product = productService.fetchProductById(orderDetailRequest.getProductId());
+//                return OrderDetails.builder()
+//                        .order(order)
+//                        .product(product)
+//                        .productVariantId(orderDetailRequest.getProductVariantId())
+//                        .quantity(orderDetailRequest.getQuantity())
+//                        .unitPrice(product.getPrice())
+//                        .build();
+//            }catch (Exception e){
+//                throw new RuntimeException(e);
+//            }
+//        }).toList();
+//
+//        order.setOrderDetailsList(orderDetails);
+//
+//        Orders savedOrder = orderRepository.save(order);
+//
+//
+//        //Chuẩn bị dữ liệu trả về
+//        OrderResponse orderResponse = new OrderResponse();
+//        orderResponse.setOrderId(savedOrder.getId());
+//        orderResponse.setOrderStatus(OrderStatus.pending);
+//
+//        // Nếu là COD thì tạo Payment ngay, VNPAY thì chưa cần
+//        if(order.getPaymentMethod().equals(PaymentMethod.COD)){
+//            Payment payment = new Payment();
+//            payment.setStatus(PaymentStatus.pending);
+//            payment.setAmount(order.getTotalAmount());
+//            payment.setPaymentMethod(PaymentMethod.COD);
+//            payment.setOrder(order);
+//            payment.setPaidAt(LocalDateTime.now());
+//            orderResponse.setPaymentMethod(PaymentMethod.COD);
+//            orderResponse.setOrderStatus(OrderStatus.confirmed);
+//            paymentRepository.save(payment);
+//        }
+//
+//        //Nếu thanh toán qua VNPAY
+//        if(order.getPaymentMethod().equals(PaymentMethod.VNPAY)){
+//            String paymentUrl = paymentService.createPaymentUrl(order, httpServletRequest);
+//            orderResponse.setPaymentUrl(paymentUrl);
+//            orderResponse.setPaymentMethod(PaymentMethod.VNPAY);
+//        }
+//
+//        return orderResponse;
+//    }
+@Transactional
+public OrderResponse createOrder(OrderRequest request, Principal principal, HttpServletRequest httpServletRequest) throws Exception {
+    User user = (User) userDetailsService.loadUserByUsername(principal.getName());
+
+    if (request.getAddress() == null || request.getAddress().isEmpty()) {
+        throw new BadRequestException("Address is required");
+    }
+
+    // Tạo đối tượng Order ban đầu chưa có totalAmount
+    Orders order = Orders.builder()
+            .status(OrderStatus.pending)
+            .user(user)
+            .address(request.getAddress())
+            .paymentMethod(request.getPaymentMethod())
+            .build();
+
+    BigDecimal totalAmount = BigDecimal.ZERO;
+    List<OrderDetails> orderDetails = new ArrayList<>();
+
+    for (var orderDetailRequest : request.getOrderDetailRequests()) {
+        Product product = productService.fetchProductById(orderDetailRequest.getProductId());
+
+        // Lấy biến thể sản phẩm và kiểm tra tồn kho
+        ProductVariant variant = productService.fetchProductVariantById(orderDetailRequest.getProductVariantId());
+        if (variant == null) {
+            throw new RuntimeException("Product variant not found: " + orderDetailRequest.getProductVariantId());
         }
-        Orders order = Orders.builder()
-                .status(OrderStatus.pending)
-                .user(user)
-                .totalAmount(request.getTotalAmount())
-                .address(request.getAddress())
-                .paymentMethod(request.getPaymentMethod())
+        if (variant.getStockQuantity() < orderDetailRequest.getQuantity()) {
+            throw new RuntimeException("Not enough stock for variant id: " + variant.getId());
+        }
+
+        // Giảm tồn kho biến thể
+        variant.setStockQuantity(variant.getStockQuantity() - orderDetailRequest.getQuantity());
+        productService.saveProductVariant(variant);
+
+        BigDecimal itemTotal = product.getPrice().multiply(BigDecimal.valueOf(orderDetailRequest.getQuantity()));
+
+        OrderDetails detail = OrderDetails.builder()
+                .order(order)
+                .product(product)
+                .productVariantId(orderDetailRequest.getProductVariantId())
+                .quantity(orderDetailRequest.getQuantity())
+                .unitPrice(product.getPrice())
                 .build();
 
-        List<OrderDetails> orderDetails = request.getOrderDetailRequests().stream().map(orderDetailRequest -> {
-            try{
-                Product product = productService.fetchProductById(orderDetailRequest.getProductId());
-                return OrderDetails.builder()
-                        .order(order)
-                        .product(product)
-                        .productVariantId(orderDetailRequest.getProductVariantId())
-                        .quantity(orderDetailRequest.getQuantity())
-                        .unitPrice(product.getPrice())
-                        .build();
-            }catch (Exception e){
-                throw new RuntimeException(e);
-            }
-        }).toList();
-
-        order.setOrderDetailsList(orderDetails);
-
-        Orders savedOrder = orderRepository.save(order);
-
-
-        //Chuẩn bị dữ liệu trả về
-        OrderResponse orderResponse = new OrderResponse();
-        orderResponse.setOrderId(savedOrder.getId());
-        orderResponse.setOrderStatus(OrderStatus.pending);
-
-        // Nếu là COD thì tạo Payment ngay, VNPAY thì chưa cần
-        if(order.getPaymentMethod().equals(PaymentMethod.COD)){
-            Payment payment = new Payment();
-            payment.setStatus(PaymentStatus.pending);
-            payment.setAmount(order.getTotalAmount());
-            payment.setPaymentMethod(PaymentMethod.COD);
-            payment.setOrder(order);
-            payment.setPaidAt(LocalDateTime.now());
-            orderResponse.setPaymentMethod(PaymentMethod.COD);
-            orderResponse.setOrderStatus(OrderStatus.confirmed);
-            paymentRepository.save(payment);
-        }
-
-        //Nếu thanh toán qua VNPAY
-        if(order.getPaymentMethod().equals(PaymentMethod.VNPAY)){
-            String paymentUrl = paymentService.createPaymentUrl(order, httpServletRequest);
-            orderResponse.setPaymentUrl(paymentUrl);
-            orderResponse.setPaymentMethod(PaymentMethod.VNPAY);
-        }
-
-        return orderResponse;
+        orderDetails.add(detail);
+        totalAmount = totalAmount.add(itemTotal);
     }
+
+    order.setTotalAmount(totalAmount);
+    order.setOrderDetailsList(orderDetails);
+
+    Orders savedOrder = orderRepository.save(order);
+
+    // Chuẩn bị dữ liệu trả về
+    OrderResponse orderResponse = new OrderResponse();
+    orderResponse.setOrderId(savedOrder.getId());
+    orderResponse.setOrderStatus(OrderStatus.pending);
+
+    // Nếu là COD thì tạo Payment ngay, VNPAY thì chưa cần
+    if (order.getPaymentMethod().equals(PaymentMethod.COD)) {
+        Payment payment = new Payment();
+        payment.setStatus(PaymentStatus.pending);
+        payment.setAmount(order.getTotalAmount());
+        payment.setPaymentMethod(PaymentMethod.COD);
+        payment.setOrder(order);
+        payment.setPaidAt(LocalDateTime.now());
+        paymentRepository.save(payment);
+
+        orderResponse.setPaymentMethod(PaymentMethod.COD);
+        orderResponse.setOrderStatus(OrderStatus.confirmed);
+    }
+
+    // Nếu thanh toán qua VNPAY
+    if (order.getPaymentMethod().equals(PaymentMethod.VNPAY)) {
+        String paymentUrl = paymentService.createPaymentUrl(order, httpServletRequest);
+        orderResponse.setPaymentUrl(paymentUrl);
+        orderResponse.setPaymentMethod(PaymentMethod.VNPAY);
+    }
+
+    return orderResponse;
+}
 
     public List<OrderDetailDto> getOrderByUser(String name) {
         User user = (User) userDetailsService.loadUserByUsername(name);
@@ -132,6 +215,8 @@ public class OrderService {
         orderDetailDto.setTotalAmount(order.getTotalAmount());
         orderDetailDto.setUnitPrice(orderDetail.getUnitPrice());
         orderDetailDto.setProductVariantId(orderDetail.getProductVariantId());
+        orderDetailDto.setProductThumbnail(orderDetail.getProduct().getThumbnail());
+
         return orderDetailDto;
     }
 

@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -24,7 +25,7 @@ public class Cart {
     private User user;
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<CartItems> items;
+    private List<CartItems> items =new ArrayList<>();;
 
     @Column(name = "total_price", nullable = false)
     private BigDecimal totalPrice;
@@ -32,7 +33,7 @@ public class Cart {
 
     public Cart(User user, List<CartItems> items, BigDecimal totalPrice) {
         this.user = user;
-        this.items = items;
+        this.items = (items != null) ? items : new ArrayList<>();
         this.totalPrice = totalPrice;
     }
 

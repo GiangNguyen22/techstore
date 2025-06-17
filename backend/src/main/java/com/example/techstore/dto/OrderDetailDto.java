@@ -25,4 +25,6 @@ public class OrderDetailDto {
     private Integer quantity;
     private BigDecimal unitPrice;
     private OrderStatus orderStatus;
+    private String productThumbnail;
+
 }

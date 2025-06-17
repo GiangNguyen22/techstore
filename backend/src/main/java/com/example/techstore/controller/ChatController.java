@@ -28,11 +28,26 @@ public class ChatController {
         saved.setReceiver(message.getReceiverName());
         saved.setMessage(message.getMessage());
         saved.setTimestamp(new Timestamp(System.currentTimeMillis()));
-        chatRepo.save(saved);
+//        chatRepo.save(saved);
+        saved = chatRepo.save(saved);
+        Message response = new Message();
+        response.setSenderName(saved.getSender());
+        response.setReceiverName(saved.getReceiver());
+        response.setMessage(saved.getMessage());
+        response.setTimestamp(saved.getTimestamp().toInstant().toString());
 
-        simpMessagingTemplate.convertAndSendToUser(message.getReceiverName(), "/private",  // full destination: /user/{receiver}/private
-                 message);
-        simpMessagingTemplate.convertAndSendToUser(message.getSenderName(), "/private", message);
+        simpMessagingTemplate.convertAndSendToUser(
+                response.getReceiverName(),
+                "/private",  // full destination: /user/{receiver}/private
+                response
+        );
+
+        simpMessagingTemplate.convertAndSendToUser(
+                response.getSenderName(),
+                "/private",
+                response
+        );
         System.out.println("Sent to " + message.getReceiverName() + ": " + message.getMessage());
+
     }
 }

@@ -4,19 +4,28 @@ import com.example.techstore.dto.ProductDto;
 import com.example.techstore.dto.response.TopProductResponse;
 import com.example.techstore.entity.Category;
 import com.example.techstore.entity.Product;
+import com.example.techstore.entity.ProductVariant;
 import com.example.techstore.exceptions.ResourceNotFoundEx;
 import com.example.techstore.mapper.ProductMapper;
 import com.example.techstore.repository.CategoryRepository;
 import com.example.techstore.repository.ProductRepository;
+import com.example.techstore.repository.ProductVariantRepository;
 import com.example.techstore.service.ProductService;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -32,6 +41,12 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     private CloudinaryService cloudinaryService;
 
+    @Autowired
+    private ProductVariantRepository productVariantRepository;
+
+    @Value("${thumbnail.upload.dir}")
+    private String thumbnailUploadDir;
+
     @Override
     public boolean isAvailable(Product product) {
         return product.getStockQuantity() > 0;
@@ -40,10 +55,10 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ProductDto> getAllProducts(Integer categoryId) {
         List<Product> products;
-        if(categoryId != null) {
-            Category category = categoryRepository.findById(categoryId).orElseThrow(()-> new ResourceNotFoundEx("Category not found width "+ categoryId));
+        if (categoryId != null) {
+            Category category = categoryRepository.findById(categoryId).orElseThrow(() -> new ResourceNotFoundEx("Category not found width " + categoryId));
             products = productRepository.findByCategoryId(category.getId());
-        }else{
+        } else {
             products = productRepository.findAll();
         }
 
@@ -58,14 +73,14 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductDto getProductById(Integer id) {
-        Product product = productRepository.findById(id).orElseThrow(()-> new ResourceNotFoundEx("Product not found width id: "+ id));
+        Product product = productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundEx("Product not found width id: " + id));
         return productMapper.mapToProductDto(product);
     }
 
     @Override
     public List<ProductDto> searchProductsByKey(String keyword) {
         // Ví dụ dùng repository truy vấn database với like '%keyword%'
-        List<Product> products = productRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(keyword, keyword);
+        List<Product> products = productRepository.findByNameContainingIgnoreCase(keyword);
         return productMapper.getProductDtoList(products);
     }
 
@@ -86,7 +101,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<TopProductResponse> getTopProducts() {
         LocalDateTime last7Days = LocalDateTime.now().minusDays(7);
-        List<Product>  productList = productRepository.getTop10BestSellingProducts(last7Days);
+        List<Product> productList = productRepository.getTop10BestSellingProducts(last7Days);
 
         return productList.stream().map(product -> {
             return TopProductResponse.builder()
@@ -97,9 +112,20 @@ public class ProductServiceImpl implements ProductService {
         }).toList();
     }
 
+    @Override
+    public ProductVariant fetchProductVariantById(int variantId) throws Exception {
+        return productVariantRepository.findById(variantId)
+                .orElseThrow(() -> new ResourceNotFoundEx("Product variant not found with id: " + variantId));
+    }
 
     @Override
-    public Product addProduct(ProductDto productDto, MultipartFile file) {
+    public ProductVariant saveProductVariant(ProductVariant variant) {
+        return productVariantRepository.save(variant);
+    }
+
+
+    @Override
+    public Product addProduct(ProductDto productDto) {
         Product product = productMapper.mapToProductEntity(productDto);
 
         // Gán ngược product vào variant và resource
@@ -110,26 +136,24 @@ public class ProductServiceImpl implements ProductService {
             product.getResources().forEach(resource -> resource.setProduct(product));
         }
 
-        Map uploadResult = cloudinaryService.upLoadFile(file);
-        String thumbnail = (String) uploadResult.get("secure_url");
-        product.setThumbnail(thumbnail);
+        // Thumbnail đã có sẵn trong productDto (từ frontend đã upload)
+        product.setThumbnail(productDto.getThumbnail());
+
         return productRepository.save(product);
     }
 
+
     @Override
-    public Product updateProduct(ProductDto productDto, MultipartFile file, Integer id) {
-        Product product = productRepository.findById(id).orElseThrow(()-> new ResourceNotFoundEx("Product not found "));
+    public Product updateProduct(ProductDto productDto, Integer id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundEx("Product not found"));
+
+        // Giữ lại ID cũ và cập nhật dữ liệu mới
         productDto.setId(product.getId());
         productMapper.updateProductEntityFromDto(productDto, product);
 
-        long start = System.currentTimeMillis();
-        Map uploadResult = cloudinaryService.upLoadFile(file);
-        long duration = System.currentTimeMillis() - start;
-        System.out.println("Upload time: " + duration + "ms");
-
-        String thumbnail = (String) uploadResult.get("secure_url");
-            product.setThumbnail(thumbnail);
-
+        // Cập nhật thumbnail nếu cần
+        product.setThumbnail(productDto.getThumbnail());
 
         // Gán lại mối quan hệ ngược
         if (product.getVariants() != null) {
@@ -143,6 +167,45 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.save(product);
     }
 
+
+    //    @Override
+//    public String saveThumbnail(MultipartFile file) {
+//        if (file.isEmpty()) throw new RuntimeException("File is empty");
+//
+//        String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+//        Path uploadDir = Paths.get(thumbnailUploadDir);  // Dùng cấu hình
+//
+//        try {
+//            if (!Files.exists(uploadDir)) Files.createDirectories(uploadDir);
+//            Path filePath = uploadDir.resolve(fileName);
+//            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+//        } catch (IOException e) {
+//            throw new RuntimeException("Failed to save image", e);
+//        }
+//
+//        // Giả sử bạn cấu hình resource mapping tại /images/**
+//        return "/images/" + fileName;
+//    }
+    @Override
+    public String saveThumbnail(MultipartFile file) {
+        if (file.isEmpty()) throw new RuntimeException("File is empty");
+
+        String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+        Path uploadDir = Paths.get(thumbnailUploadDir);
+
+        try {
+            if (!Files.exists(uploadDir)) Files.createDirectories(uploadDir);
+            Path filePath = uploadDir.resolve(fileName);
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to save image", e);
+        }
+
+        // Trả về URL để FE load trực tiếp
+        return "/images/" + fileName;
+    }
+
+
     @Override
     public void deleteProduct(Integer id) {
         if (!productRepository.existsById(id)) {
@@ -150,7 +213,6 @@ public class ProductServiceImpl implements ProductService {
         }
         productRepository.deleteById(id);
     }
-
 
 
 }
