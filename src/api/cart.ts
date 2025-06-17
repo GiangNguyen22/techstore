@@ -83,16 +83,22 @@ const getAllCarts = async (): Promise<any> => {
 const getACart = async () => {
   try {
     const token = getAccessTokenFromLS();
-    if (!token) throw new Error("No token");
+    if (!token) {
+      // Trả về cart rỗng khi chưa đăng nhập
+      return { items: [] };
+    }
 
     const res = await axios.get(baseUrl, {
       headers: { Authorization: `Bearer ${token}` },
     });
+    // console.log(res.data);
     return res.data;
   } catch (error) {
-    throw error;
+    // Có thể log lỗi hoặc xử lý tùy ý
+    return { items: [] };  // Hoặc throw error nếu muốn xử lý khác ở ngoài
   }
 };
+
 
 //   const addAProductCart = async (productId: string, quantity: number): Promise<any> => {
 //     try {
@@ -125,12 +131,12 @@ const addAProductCart = async (request: AddToCartRequest): Promise<any> => {
     const res = await axios.post(`${baseUrl}/items`, request, {
       headers: { Authorization: `Bearer ${token}` },
     });
-    console.log(
-      "Sending request to:",
-      `${baseUrl}/items`,
-      "with data:",
-      request
-    );
+    // console.log(
+    //   "Sending request to:",
+    //   `${baseUrl}/items`,
+    //   "with data:",
+    //   request
+    // );
 
     return res.data;
   } catch (error) {

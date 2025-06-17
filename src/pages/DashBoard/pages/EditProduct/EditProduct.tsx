@@ -41,45 +41,33 @@ const EditProduct = () => {
     queryFn: () => getCategories(),
   });
 
-  const handleAdd = async (newProduct: any) => {
+  // Hàm thống nhất cho Add/Edit/Delete
+  const handleSubmit = async (
+    mode: "add" | "edit" | "delete",
+    productData: any
+  ) => {
     try {
-      await addProduct(newProduct);
+      if (mode === "add") {
+        await addProduct(productData);
+      } else if (mode === "edit") {
+        if (!("id" in productData)) throw new Error("Product id missing");
+        await updateProduct(productData.id, productData);
+      } else if (mode === "delete") {
+        if (!("id" in productData)) throw new Error("Product id missing");
+        await deleteProduct(productData.id);
+      }
       setOpen(false);
       refetchProducts();
     } catch (error) {
-      console.error("Lỗi thêm sản phẩm:", error);
-    }
-  };
-
-  const handleEdit = async (updatedProduct: any) => {
-    try {
-      if (!("id" in updatedProduct)) throw new Error("Product id missing");
-      await updateProduct(updatedProduct.id, updatedProduct);
-      setOpen(false);
-      refetchProducts();
-    } catch (error) {
-      console.error("Lỗi sửa sản phẩm:", error);
-    }
-  };
-
-  const handleDelete = async (productToDelete: any) => {
-    try {
-      if (!("id" in productToDelete)) throw new Error("Product id missing");
-      await deleteProduct(productToDelete.id);
-      setOpen(false);
-      refetchProducts();
-    } catch (error) {
-      console.error("Lỗi xoá sản phẩm:", error);
+      console.error(`Lỗi ${mode} sản phẩm:`, error);
     }
   };
 
   if (productLoading || categoryLoading) return <div>Loading...</div>;
   if (productError)
-    return <div>Error loading products: {productError.message}</div>;
+    return <div>Error loading products: {(productError as Error).message}</div>;
   if (categoryError)
-    return <div>Error loading categories: {categoryError.message}</div>;
-  console.log("Category data:", categoryData);
-  console.log("Product data:", productData);
+    return <div>Error loading categories: {(categoryError as Error).message}</div>;
 
   return (
     <div className="flex bg-blue-50 gap-20 h-screen">
@@ -89,14 +77,11 @@ const EditProduct = () => {
           open={open}
           setOpen={setOpen}
           categoryData={categoryData}
-          product={
-            !product || Object.keys(product).length === 0 ? null : product
-          }
+          product={!product || Object.keys(product).length === 0 ? null : product}
           formMode={formMode}
-          onAdd={handleAdd}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
+          onSubmit={handleSubmit} // Truyền hàm thống nhất
         />
+
         <button
           onClick={() => {
             setProduct(null);
@@ -130,11 +115,10 @@ const EditProduct = () => {
                 {/* Hiển thị biến thể nếu có */}
                 {Array.isArray(item.variants) &&
                   item.variants.map((v, idx) => (
-                    <li key={idx}>
+                    <li key={idx} className="ml-4 list-disc">
                       Màu: <span className="font-medium">{v.color}</span>, Kích
                       cỡ: <span className="font-medium">{v.size}</span>, Số
-                      lượng:{" "}
-                      <span className="font-medium">{v.stockQuantity}</span>
+                      lượng: <span className="font-medium">{v.stockQuantity}</span>
                     </li>
                   ))}
               </Card>

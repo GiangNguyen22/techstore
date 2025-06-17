@@ -3,45 +3,54 @@ import ReactDOM from "react-dom";
 import { X, Plus, Minus } from "lucide-react";
 import { Button } from "../../components/ui/Button";
 import { Product, ProductVariant } from "../../types/Product.type";
+import { useNavigate } from "react-router-dom";
+import { useNotification } from "../../pages/Detail/NotificationProvider";
 
 interface ProductModalProps {
   product: Product;
   onClose: () => void;
-  onConfirm?: (productVariantId: number, quantity: number) => void;
+  onConfirm?: (
+    productVariantId: number,
+    quantity: number,
+    newThumbnailFile?: File
+  ) => void;
   loading?: boolean;
-  currentQuantityInCart?: (variantId: number) => number;
+  currentQuantityInCart: (variantId: number) => number;
 }
-
 
 const ProductModal: React.FC<ProductModalProps> = ({
   product,
   onClose,
   onConfirm,
   loading,
-    currentQuantityInCart ,
-
+  currentQuantityInCart,
 }) => {
-  // Lưu biến thể đang được chọn
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
     null
   );
   const [quantity, setQuantity] = useState(1);
-const currentQty =
-  selectedVariant?.id && currentQuantityInCart
-    ? currentQuantityInCart(selectedVariant.id)
-    : 0;
+  const navigate = useNavigate();
+  const [newThumbnailFile, setNewThumbnailFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const { showMessage } = useNotification();
 
-const maxQuantity =
-  (selectedVariant?.stockQuantity ?? 0) - currentQty;
-
-  // Mặc định chọn variant đầu tiên (nếu có)
   useEffect(() => {
     if (product.variants && product.variants.length > 0) {
       setSelectedVariant(product.variants[0]);
+      setQuantity(1);
+    } else {
+      setSelectedVariant(null);
+      setQuantity(1);
     }
-  }, [product.variants]);
 
-  const isSoldOut = selectedVariant?.stockQuantity === 0;
+    // reset ảnh preview khi product thay đổi
+    setNewThumbnailFile(null);
+    setPreviewUrl(null);
+  }, [product]);
+
+  const maxQuantity = selectedVariant?.stockQuantity ?? 0;
+
+  const isSoldOut = maxQuantity === 0;
 
   const increase = () => {
     if (!isSoldOut && quantity < maxQuantity) {
@@ -50,27 +59,61 @@ const maxQuantity =
   };
 
   const decrease = () => {
-    if (!isSoldOut) {
-      setQuantity((q) => (q > 1 ? q - 1 : 1));
+    if (quantity > 1) {
+      setQuantity((q) => q - 1);
     }
   };
-
-  // Hàm chọn biến thể
-  const handleSelectVariant = (variant: ProductVariant) => {
-    setSelectedVariant(variant);
-    setQuantity(1); // reset số lượng khi đổi biến thể
+  const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setNewThumbnailFile(file);
+      setPreviewUrl(URL.createObjectURL(file)); // tạo preview tạm thời
+    }
+  };
+  const handleAddToCart = () => {
+    if (!selectedVariant) return;
+    const quantityInCart = currentQuantityInCart(selectedVariant.id);
+    const totalQuantity = quantityInCart + quantity;
+    if (totalQuantity > selectedVariant.stockQuantity) {
+      showMessage(
+        "Số lượng trong giỏ sẽ vượt quá số lượng tồn kho. Vui lòng giảm số lượng.",
+        "success"
+      );
+      return;
+    }
+    // Gửi luôn file mới nếu có
+    onConfirm?.(selectedVariant.id, quantity, newThumbnailFile ?? undefined);
+    onClose();
   };
 
-  // UI chọn màu hoặc size
-  // Bạn có thể tùy biến UI theo nhu cầu nhé
+  const handleBuyNow = () => {
+    if (!selectedVariant) return;
+
+    // Chuyển sang trang /order với dữ liệu biến thể và số lượng đã chọn,
+    // có thể truyền state hoặc query param để trang order lấy và hiện thông tin
+    navigate("/order", {
+      state: {
+        productId: product.id,
+        productVariantId: selectedVariant.id,
+        quantity,
+      },
+    });
+    onClose();
+  };
+
+  const handleSelectVariant = (variant: ProductVariant) => {
+    setSelectedVariant(variant);
+    setQuantity(1);
+  };
+
   const variantButtons =
-    product.variants?.map((variant: any) => (
+    product.variants?.map((variant: ProductVariant) => (
       <button
         key={variant.id}
         onClick={() => handleSelectVariant(variant)}
         className={`px-3 py-1 border rounded mr-2 mb-2 ${
           selectedVariant?.id === variant.id
-            ? "bg-blue-500 text-white"
+            ? "bg-black text-white"
             : "bg-white text-black"
         }`}
         disabled={variant.stockQuantity === 0}
@@ -80,43 +123,64 @@ const maxQuantity =
         {variant.stockQuantity === 0 ? " (Hết hàng)" : ""}
       </button>
     )) || null;
+  const BACKEND_URL = "http://localhost:8080";
 
   return ReactDOM.createPortal(
-    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
-      <div className="bg-white rounded-lg p-6 w-full max-w-5xl relative shadow-lg">
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center px-4">
+      <div className="bg-[#f8f8f8] rounded-xl p-6 md:p-8 w-full max-w-5xl relative shadow-xl text-gray-900">
+        {/* Nút đóng */}
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-gray-500 hover:text-red-500"
+          className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition"
           aria-label="Close modal"
         >
           <X className="w-6 h-6" />
         </button>
 
-        <div className="flex gap-6 flex-col md:flex-row">
-          <img
-            src={product.thumbnail}
-            alt={product.name}
-            className="w-full md:w-1/2 object-contain max-h-[400px]"
-          />
-          <div className="flex-1">
-            <h2 className="text-lg font-semibold mb-2">{product.name}</h2>
-            <p className="text-red-600 font-bold text-xl">
+        <div className="flex flex-col md:flex-row gap-8">
+          {/* Ảnh sản phẩm */}
+          <div className="w-full md:w-1/2 flex items-center justify-center">
+            <img
+              src={
+                product.thumbnail
+                  ? BACKEND_URL + product.thumbnail
+                  : product.image
+              }
+              alt={product.name}
+              className="object-contain h-[400px] w-full rounded-lg  "
+            />
+          </div>
+
+          {/* Thông tin */}
+          <div className="w-full md:w-1/2">
+            <h2 className="text-2xl font-semibold mb-2">{product.name}</h2>
+            <p
+              className={`text-xl font-bold mb-4 ${
+                isSoldOut ? "text-gray-400" : "text-gray-800"
+              }`}
+            >
               {isSoldOut ? "Hết hàng" : `${product.price.toLocaleString()}₫`}
             </p>
 
+            {/* Biến thể */}
             <div className="mb-4">
-              <div className="mb-2 font-medium">Chọn biến thể:</div>
-              <div className="flex flex-wrap">{variantButtons}</div>
+              <div className="text-sm text-gray-600 mb-1 font-medium">
+                Chọn biến thể:
+              </div>
+              <div className="flex flex-wrap gap-2">{variantButtons}</div>
             </div>
 
+            {/* Số lượng */}
             {!isSoldOut && selectedVariant && (
-              <div className="mt-4 flex items-center gap-4">
-                <span className="font-medium">Số lượng:</span>
-                <div className="flex items-center border rounded px-2 py-1">
+              <div className="mb-6 flex items-center gap-4">
+                <span className="text-sm text-gray-600">Số lượng:</span>
+                <div className="flex items-center border border-gray-300 rounded-md
+                 px-3 py-1 bg-white">
                   <button
                     onClick={decrease}
                     className="text-gray-600 hover:text-black"
-                    aria-label="Decrease quantity"
+                    type="button"
+                    aria-label="Giảm"
                   >
                     <Minus size={16} />
                   </button>
@@ -124,32 +188,38 @@ const maxQuantity =
                   <button
                     onClick={increase}
                     className="text-gray-600 hover:text-black"
-                    aria-label="Increase quantity"
+                    type="button"
+                    aria-label="Tăng"
                   >
                     <Plus size={16} />
                   </button>
                 </div>
-               <span className="text-xs text-gray-500">
-          (Còn lại: {maxQuantity > 0 ? maxQuantity : 0})
-        </span>
+                <span className="text-xs text-gray-400">
+                  (Còn lại: {maxQuantity})
+                </span>
               </div>
             )}
 
-            <div className="flex gap-7 mt-8">
+            {/* Nút hành động */}
+            <div className="flex flex-col sm:flex-row gap-4 mt-6">
+              {/* Nút cho vào giỏ hàng */}
               <Button
-                onClick={() =>
-                  selectedVariant && onConfirm?.(selectedVariant.id, quantity)
-                }
+                onClick={handleAddToCart}
                 disabled={isSoldOut || loading || !selectedVariant}
+                className="w-full sm:w-auto  px-4 py-2 text-white rounded-md 
+                 bg-[#cbb435] hover:bg-[#578fb7] transition"
               >
                 {loading ? "Đang xử lý..." : "Cho vào giỏ hàng"}
               </Button>
 
+              {/* Nút mua ngay */}
               <button
-                className={`px-4 py-2 text-white rounded ${
+                type="button"
+                onClick={handleBuyNow}
+                className={`w-full sm:w-auto px-4 py-2 rounded-md font-medium transition text-white ${
                   isSoldOut || !selectedVariant
                     ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-pink-500 hover:bg-pink-600"
+                    : "bg-[#32a966] hover:bg-[#b4d43f]"
                 }`}
                 disabled={isSoldOut || !selectedVariant}
               >
