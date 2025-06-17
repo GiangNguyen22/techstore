@@ -71,6 +71,7 @@ import ProductList from './content/ProductList';
 import AdminRole from './content/AdminRole';
 import ControlAuthority from './content/ControlAuthority';
 import FooterComponent from '../commom/FooterComponent';
+import EditProduct from '../../pages/DashBoard/pages/EditProduct/EditProduct';
 
 
 const DashboardLayout = () => {
@@ -122,7 +123,7 @@ const DashboardLayout = () => {
             case 'Product Media':
                 return <div className="text-gray-500">Product Media content goes here</div>;
             case 'Product List':
-                return <ProductList />;
+                return <EditProduct/>;
             case 'Admin role':
                 return <AdminRole />
             case 'Control Authority':
