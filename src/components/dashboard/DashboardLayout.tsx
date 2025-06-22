@@ -82,17 +82,14 @@ const DashboardLayout = () => {
     { icon: require('lucide-react').Home, label: 'Dashboard_Admin', active: true },
     { icon: require('lucide-react').ShoppingCart, label: 'Order Management' },
     { icon: require('lucide-react').Users, label: 'Customers' },
-    { icon: require('lucide-react').Tag, label: 'Coupon Code' },
     { icon: require('lucide-react').Grid3X3, label: 'Categories' },
     { icon: require('lucide-react').CreditCard, label: 'Transaction' },
-    { icon: require('lucide-react').Star, label: 'Brand' },
   ];
 
   const productMenuItems = [
     { icon: require('lucide-react').Plus, label: 'Add Products' },
     { icon: require('lucide-react').Image, label: 'Product Media', badge: '141.3' },
     { icon: require('lucide-react').List, label: 'Product List' },
-    { icon: require('lucide-react').MessageSquare, label: 'Product Reviews' },
   ];
 
   const adminMenuItems = [

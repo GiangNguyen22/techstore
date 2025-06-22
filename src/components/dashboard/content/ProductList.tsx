@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Search, Eye } from 'lucide-react';
-import { getProducts, getProductById } from '../../../api/products'; // Đảm bảo bạn có hàm này
-
+import { getProducts, getProductById } from '../../../api/products';
 
 interface Product {
   id: string;
@@ -10,6 +9,7 @@ interface Product {
   price: string;
   status: string;
 }
+
 interface Variant {
   id: number;
   color: string;
@@ -67,8 +67,6 @@ const ProductList = () => {
     setIsModalOpen(true);
     try {
       const res: ProductDetailResponse = await getProductById(parseInt(id, 10));
-      console.log(res);
-      console.log(res.productDto);
       setSelectedProduct(res.productDto);
     } catch (err) {
       console.error('Failed to load product details:', err);
@@ -79,60 +77,58 @@ const ProductList = () => {
   };
 
   return (
-    <div>
-      {/* Header */}
+    <div className="p-6 min-h-screen bg-[#F9F9F9] text-[#1D1D1F] dark:bg-[#1C1C1E] dark:text-[#F9F9F9]">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Product List</h2>
       </div>
 
-      {/* Search */}
-      <div className="relative max-w-sm mb-4">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+      <div className="relative max-w-md mb-6">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A1A1A6] dark:text-gray-400" size={18} />
         <input
           type="text"
-          placeholder="Search products"
+          placeholder="Search for a product..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="pl-10 pr-4 py-2 rounded-xl w-full border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-[#007AFF] shadow-sm transition-all bg-white dark:bg-[#2C2C2E] text-[#1D1D1F] dark:text-[#F9F9F9]"
         />
       </div>
 
-      {/* Product Table */}
-      <div className="overflow-x-auto bg-white shadow-sm border rounded-lg">
+      <div className="overflow-x-auto bg-white dark:bg-[#2C2C2E] shadow-sm border dark:border-gray-700 rounded-lg">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-gray-100 text-left">
-              <th className="py-3 px-4 font-medium text-gray-600">Product ID</th>
-              <th className="py-3 px-4 font-medium text-gray-600">Name</th>
-              <th className="py-3 px-4 font-medium text-gray-600">Price</th>
-              <th className="py-3 px-4 font-medium text-gray-600">Status</th>
-              <th className="py-3 px-4 font-medium text-gray-600">Actions</th>
+            <tr className="bg-gray-100 dark:bg-[#3A3A3C] border-b text-left text-[#A1A1A6] dark:text-gray-300 uppercase text-xs">
+              <th className="py-3 px-5">ID</th>
+              <th className="py-3 px-5">Name</th>
+              <th className="py-3 px-5">Price</th>
+              <th className="py-3 px-5">Status</th>
+              <th className="py-3 px-5">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {filteredProducts.map((product, index) => (
-              <tr key={index} className="border-t hover:bg-gray-50">
-                <td className="py-3 px-4">{product.id}</td>
-                <td className="py-3 px-4">{product.name}</td>
-                <td className="py-3 px-4">{product.price}</td>
-                <td className="py-3 px-4">
+            {filteredProducts.map((product) => (
+              <tr key={product.id} className="border-t hover:bg-gray-50 dark:hover:bg-[#3A3A3C] transition">
+                <td className="py-3 px-5">{product.id}</td>
+                <td className="py-3 px-5">{product.name}</td>
+                <td className="py-3 px-5">${product.price}</td>
+                <td className="py-3 px-5">
                   <span
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${product.status === 'Active'
-                      ? 'bg-green-100 text-green-600'
-                      : product.status === 'Out of Stock'
-                        ? 'bg-gray-200 text-gray-500'
-                        : 'bg-yellow-100 text-yellow-700'
-                      }`}
+                    className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                      product.status === 'Active'
+                        ? 'bg-green-50 text-[#34C759] dark:bg-green-900 dark:text-green-400'
+                        : product.status === 'Out of Stock'
+                        ? 'bg-gray-100 text-[#A1A1A6] dark:bg-gray-700 dark:text-gray-400'
+                        : 'bg-yellow-50 text-[#FFCC00] dark:bg-yellow-900 dark:text-yellow-300'
+                    }`}
                   >
                     {product.status}
                   </span>
                 </td>
-                <td className="py-3 px-4 text-right">
+                <td className="py-3 px-5">
                   <button
-                    className="text-blue-500 text-sm hover:underline flex items-center gap-1"
                     onClick={() => handleViewProduct(product.id)}
+                    className="text-[#007AFF] hover:underline flex items-center gap-1 transition dark:text-blue-400"
                   >
-                    <Eye size={14} />
+                    <Eye size={16} />
                     View
                   </button>
                 </td>
@@ -140,7 +136,7 @@ const ProductList = () => {
             ))}
             {filteredProducts.length === 0 && (
               <tr>
-                <td colSpan={6} className="py-4 px-4 text-center text-gray-400">
+                <td colSpan={5} className="py-4 px-5 text-center text-[#A1A1A6] dark:text-gray-400">
                   No products found.
                 </td>
               </tr>
@@ -149,47 +145,45 @@ const ProductList = () => {
         </table>
       </div>
 
-      {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-xl max-h-[90vh] overflow-y-auto">
-            <h3 className="text-lg font-semibold mb-4">Product Details</h3>
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
+          <div className="bg-white dark:bg-[#2C2C2E] rounded-2xl shadow-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <h3 className="text-xl font-semibold mb-4">Product Details</h3>
 
             {loadingDetail ? (
-              <p className="text-gray-500">Loading...</p>
+              <p className="text-[#A1A1A6] dark:text-gray-400">Loading...</p>
             ) : selectedProduct ? (
               <>
-                <img
-                  src={selectedProduct.thumbnail}
-                  alt="Thumbnail"
-                  className="w-32 h-32 object-cover mb-4 rounded"
-                />
+                <div className="flex gap-4 mb-4">
+                  <img
+                    src={selectedProduct.thumbnail}
+                    alt="Thumbnail"
+                    className="w-32 h-32 object-cover rounded-lg shadow"
+                  />
+                  <div className="flex-1 text-sm space-y-1">
+                    <p><strong>Name:</strong> {selectedProduct.name}</p>
+                    <p><strong>Description:</strong> {selectedProduct.description}</p>
+                    <p><strong>Price:</strong> ${selectedProduct.price}</p>
+                    <p><strong>Stock:</strong> {selectedProduct.stockQuantity}</p>
+                    <p><strong>Status:</strong> {selectedProduct.status}</p>
+                    <p><strong>Type:</strong> {selectedProduct.type}</p>
+                    <p><strong>Company:</strong> {selectedProduct.companyName}</p>
+                    <p><strong>Category ID:</strong> {selectedProduct.categoryId}</p>
+                  </div>
+                </div>
 
-                <p><strong>Name:</strong> {selectedProduct.name}</p>
-                <p><strong>Description:</strong> {selectedProduct.description}</p>
-                <p><strong>Price:</strong> ${selectedProduct.price}</p>
-                <p><strong>Stock:</strong> {selectedProduct.stockQuantity}</p>
-                <p><strong>Status:</strong> {selectedProduct.status}</p>
-                <p><strong>Type:</strong> {selectedProduct.type}</p>
-                <p><strong>Company:</strong> {selectedProduct.companyName}</p>
-                <p><strong>Category ID:</strong> {selectedProduct.categoryId}</p>
-
-                {/* Variants */}
                 <div className="mt-4">
                   <p className="font-medium">Variants:</p>
-                  <ul className="list-disc list-inside text-sm text-gray-700">
+                  <ul className="list-disc pl-5 text-sm">
                     {selectedProduct.variants.map((v) => (
-                      <li key={v.id}>
-                        {v.color} / {v.size} – Stock: {v.stockQuantity}
-                      </li>
+                      <li key={v.id}>{v.color} / {v.size} – Stock: {v.stockQuantity}</li>
                     ))}
                   </ul>
                 </div>
 
-                {/* Resources */}
                 <div className="mt-4">
                   <p className="font-medium">Resources:</p>
-                  <ul className="list-disc list-inside text-sm text-blue-600">
+                  <ul className="list-disc pl-5 text-sm text-[#007AFF] dark:text-blue-400">
                     {selectedProduct.resources.map((r) => (
                       <li key={r.id}>
                         <a href={r.url} target="_blank" rel="noopener noreferrer" className="underline">
@@ -201,13 +195,13 @@ const ProductList = () => {
                 </div>
               </>
             ) : (
-              <p className="text-red-500">Failed to load product details.</p>
+              <p className="text-[#FF3B30] dark:text-red-400">Failed to load product details.</p>
             )}
 
             <div className="mt-6 text-right">
               <button
-                className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300"
                 onClick={() => setIsModalOpen(false)}
+                className="px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-[#1D1D1F] dark:text-white rounded-lg transition"
               >
                 Close
               </button>
