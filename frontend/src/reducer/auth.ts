@@ -1,4 +1,3 @@
-// src/store/authSlice.ts
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
@@ -15,6 +14,8 @@ const authSlice = createSlice({
       state.username = action.payload.username;
       state.token = action.payload.token;
       state.isAdmin = action.payload.isAdmin;
+      console.log(state.token);
+    
     },
     clearAuthData(state) {
       state.username = null;

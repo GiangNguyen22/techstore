@@ -7,6 +7,7 @@ import com.example.techstore.dto.response.OrderResponse;
 import com.example.techstore.dto.response.PendingAndCanceledOrderResponse;
 import com.example.techstore.dto.response.TotalOrderResponse;
 import com.example.techstore.entity.Orders;
+import com.example.techstore.enums.OrderStatus;
 import com.example.techstore.service.impl.OrderService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.hibernate.query.Order;
@@ -71,7 +72,7 @@ public class OrderController {
     @PostMapping
     public ResponseEntity<?> createOrder(@RequestBody OrderRequest request, Principal principal, HttpServletRequest httpServletRequest) throws Exception {
         OrderResponse orderResponse = orderService.createOrder(request, principal, httpServletRequest);
-            return new ResponseEntity<>(orderResponse, HttpStatus.OK);
+        return new ResponseEntity<>(orderResponse, HttpStatus.OK);
     }
 
     @GetMapping("/user")

@@ -1,58 +1,67 @@
-import React, { useState } from "react";
-import { Description, Field, Label, Select } from "@headlessui/react";
+import React, { useEffect, useState } from "react";
+import { Label } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import clsx from "clsx";
 
 interface CategoryType {
-  id: string | number;
+  id: number; 
   name: string;
 }
 
 interface CategoriesProps {
   categories: CategoryType[] | null;
-  setIdCategory: any; // Selected category from state
+  setIdCategory: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const SelectCategory = ({ categories, setIdCategory }: CategoriesProps) => {
-  // State to store selected category
-  const [selectedCategory, setSelectedCategory] = useState<string | number>("");
+  // State lưu id category đang chọn, khởi tạo bằng rỗng
+  const [selectedCategory, setSelectedCategory] = useState<number | "">("");
 
-  // Handle change of select value
+  // Khi categories load xong lần đầu và chưa có giá trị chọn, set default là id đầu tiên
+  useEffect(() => {
+    if (
+      categories &&
+      categories.length > 0 &&
+      (selectedCategory === "" || selectedCategory === null)
+    ) {
+      setSelectedCategory(categories[0].id);
+      setIdCategory(categories[0].id);
+    }
+  }, [categories, selectedCategory, setIdCategory]);
+
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setIdCategory(event.target.value);
-    setSelectedCategory(event.target.value); // Update the state with the selected value
+    const value = Number(event.target.value);
+    setSelectedCategory(value);
+    setIdCategory(value);
   };
-
-  console.log(selectedCategory); // You can log the selected value for debugging
-  console.log("Categories:", categories);
 
   return (
     <div className="w-full max-w-md px-4">
-      <Field>
-        <Label className="text-sm/6 font-medium text-black">Category</Label>
-        <div className="relative">
-          <Select
-            value={selectedCategory} // Bind the select value to state
-            onChange={handleChange} // Update the state on change
-            className={clsx(
-              "mt-3 block w-full appearance-none rounded-lg border-none bg-gray-300 py-1.5 px-3 text-sm/6 text-black",
-              "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25",
-              "*:text-black"
-            )}
-          >
-            <option>Chọn loại</option>
-            {categories?.map((category: CategoryType) => (
+      <label className="text-sm font-medium text-black">Loại sản phẩm</label>
+      <div className="relative">
+        <select
+          value={selectedCategory}
+          onChange={handleChange}
+          className={clsx(
+            "mt-2 block w-full appearance-none rounded-lg border border-gray-300 bg-white py-2 px-3 text-sm text-black",
+            "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          )}
+        >
+          {!categories || categories.length === 0 ? (
+            <option value="">Không có danh mục nào</option>
+          ) : (
+            categories.map((category) => (
               <option key={category.id} value={category.id}>
                 {category.name}
               </option>
-            )) ?? <option value="">No categories available</option>}
-          </Select>
-          <ChevronDownIcon
-            className="pointer-events-none absolute top-2.5 right-2.5 size-4 fill-white/60"
-            aria-hidden="true"
-          />
-        </div>
-      </Field>
+            ))
+          )}
+        </select>
+        <ChevronDownIcon
+          className="pointer-events-none absolute top-3 right-3 h-5 w-5 text-gray-400"
+          aria-hidden="true"
+        />
+      </div>
     </div>
   );
 };

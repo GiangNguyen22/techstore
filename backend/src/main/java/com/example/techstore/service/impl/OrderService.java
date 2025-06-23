@@ -1,5 +1,6 @@
 package com.example.techstore.service.impl;
 
+import com.example.techstore.dto.CartDto;
 import com.example.techstore.dto.OrderDetailDto;
 import com.example.techstore.dto.request.OrderRequest;
 import com.example.techstore.dto.response.OrderResponse;
@@ -11,9 +12,7 @@ import com.example.techstore.enums.OrderStatus;
 import com.example.techstore.enums.PaymentMethod;
 import com.example.techstore.enums.PaymentStatus;
 import com.example.techstore.exceptions.ResourceNotFoundEx;
-import com.example.techstore.repository.OrderDetailRepository;
-import com.example.techstore.repository.OrderRepository;
-import com.example.techstore.repository.PaymentRepository;
+import com.example.techstore.repository.*;
 import com.example.techstore.service.ProductService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
@@ -43,7 +42,10 @@ public class OrderService {
     @Autowired
     private PaymentRepository paymentRepository;
     @Autowired
-    private OrderDetailRepository orderDetailRepository;
+    private CartRepository cartRepository;
+    @Autowired
+    private CartServiceImpl cartService;
+
 
 
 //    @Transactional
@@ -178,6 +180,7 @@ public OrderResponse createOrder(OrderRequest request, Principal principal, Http
 
         orderResponse.setPaymentMethod(PaymentMethod.COD);
         orderResponse.setOrderStatus(OrderStatus.confirmed);
+
     }
 
     // Nếu thanh toán qua VNPAY
@@ -186,6 +189,8 @@ public OrderResponse createOrder(OrderRequest request, Principal principal, Http
         orderResponse.setPaymentUrl(paymentUrl);
         orderResponse.setPaymentMethod(PaymentMethod.VNPAY);
     }
+
+    removeOrder(order.getUser().getId());
 
     return orderResponse;
 }
@@ -203,6 +208,13 @@ public OrderResponse createOrder(OrderRequest request, Principal principal, Http
            }
        }
        return result;
+    }
+
+
+    public void removeOrder(Integer userId) {
+        Cart cart = cartRepository.findByUserId(userId).orElseThrow(() -> new ResourceNotFoundEx("Cart not found!"));
+        cartRepository.delete(cart);
+        //Trả lại cart Dto
     }
 
     private static OrderDetailDto getOrderDetailDto(Orders order, OrderDetails orderDetail) {

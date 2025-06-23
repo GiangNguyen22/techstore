@@ -1,7 +1,6 @@
 import { ChartBarStacked, LayoutDashboard, PackageSearch } from "lucide-react";
 import { Link } from "react-router-dom";
 
-
 interface Icon {
   children: React.ReactNode;
   title: string;

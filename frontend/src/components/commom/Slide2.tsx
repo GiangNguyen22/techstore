@@ -7,28 +7,34 @@ import CardItem from "../../pages/Cart/CardItem";
 import ProductModal from "../../pages/Cart/ProductModal";
 import { getCategories } from "../../api/categories";
 import { getProducts } from "../../api/products";
-
-interface Product {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  stockQuantity: number;
-  discount: number;
-  image: string;
-  thumbnail: string;
-  type: string;
-  companyName: string;
-  quantity: number;
-  categoryId: number;
-  position: { top: string; left: string };
-  imageIndex: number;
-}
+import { getACart } from "../../api/cart";
+import { useNotification } from "../../pages/Detail/NotificationProvider";
+import { Product } from "../../types/Product.type";
 
 const Slide2 = () => {
   const swiperRef = useRef<any>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [cartItems, setCartItems] = useState<any[]>([]);
+  const { showMessage } = useNotification();
+
+  const currentQuantityInCart = (variantId: number) => {
+    const item = cartItems.find((i) => i.productVariantId === variantId);
+    return item ? item.quantity : 0;
+  };
+
+  const refreshCart = async () => {
+    try {
+      const cart = await getACart();
+      setCartItems(cart.items || []);
+    } catch (error) {
+      console.error("Lỗi khi tải giỏ hàng:", error);
+    }
+  };
+
+  useEffect(() => {
+    refreshCart();
+  }, []);
 
   useEffect(() => {
     const fetchKeyboardProducts = async () => {
@@ -40,7 +46,7 @@ const Slide2 = () => {
 
         if (keyboardCategory) {
           const productList = await getProducts(keyboardCategory.id);
-          setProducts(productList);
+          setProducts(productList.slice(0, 10));
         } else {
           console.warn("Không tìm thấy category tên 'Keyboard'");
         }
@@ -78,6 +84,8 @@ const Slide2 = () => {
           <SwiperSlide key={product.id}>
             <CardItem
               product={product}
+              currentQuantityInCart={currentQuantityInCart}
+              refreshCart={refreshCart}
               onClickAddToCart={() => setSelectedProduct(product)}
             />
           </SwiperSlide>
@@ -90,7 +98,15 @@ const Slide2 = () => {
         <ProductModal
           product={selectedProduct}
           onClose={() => setSelectedProduct(null)}
-          onConfirm={() => {}}
+          onConfirm={async (variantId, quantity) => {
+            await refreshCart();
+            setSelectedProduct(null);
+            showMessage(
+              `Đã thêm ${quantity} sản phẩm vào giỏ hàng!`,
+              "success"
+            );
+          }}
+          currentQuantityInCart={currentQuantityInCart}
         />
       )}
     </div>

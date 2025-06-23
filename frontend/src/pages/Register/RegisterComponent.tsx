@@ -19,9 +19,12 @@ const RegisterComponent = () => {
       password: string;
       phone: string;
     }) => register(values.name, values.email, values.password, values.phone),
+    // onSuccess: (_, variables) => {
+    //   navigate("/verify", { state: { email: variables.email } });
+    // },
     onSuccess: (_, variables) => {
-      navigate("/verify", { state: { email: variables.email } });
-    },
+  navigate("/login"); 
+},
     onError: (error) => {
       const axiosError = error as AxiosError;
       const errorData = axiosError.response?.data as { message?: string };
@@ -45,7 +48,8 @@ const RegisterComponent = () => {
         .required("Email không được để trống"),
       phone: Yup.string()
         .matches(/^\d+$/, "Số điện thoại chỉ được chứa số")
-        .min(9, "Số điện thoại phải có ít nhất 9 chữ số")
+        .min(10, "Số điện thoại phải có  10 chữ số")
+        .max(10, "Số điện thoại phải có  10 chữ số")
         .required("Số điện thoại không được để trống"),
       password: Yup.string()
         .min(6, "Mật khẩu phải có ít nhất 6 ký tự")

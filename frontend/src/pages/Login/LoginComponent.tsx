@@ -37,6 +37,7 @@ const LoginComponent = () => {
     // Lưu thông tin user nếu có
     if (response.user) {
       localStorage.setItem("user", JSON.stringify(response.user));
+      console.log(response.user);
     }
 
     // Chuyển hướng và reload để cập nhật Header

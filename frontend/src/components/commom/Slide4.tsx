@@ -4,31 +4,33 @@ import "swiper/css";
 import "swiper/css/pagination";
 import { Autoplay, Pagination } from "swiper/modules";
 import CardItem from "../../pages/Cart/CardItem";
-import ProductModal from "../../pages/Cart/ProductModal";
 import { getCategories } from "../../api/categories";
 import { getProducts } from "../../api/products";
-
-interface Product {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  stockQuantity: number;
-  discount: number;
-  image: string;
-  thumbnail: string;
-  type: string;
-  companyName: string;
-  quantity: number;
-  categoryId: number;
-  position: { top: string; left: string };
-  imageIndex: number;
-}
+import { getACart } from "../../api/cart";
+import { Product } from "../../types/Product.type";
 
 const Slide4 = () => {
   const swiperRef = useRef<any>(null);
   const [products, setProducts] = useState<Product[]>([]);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [cartItems, setCartItems] = useState<any[]>([]);
+
+  // Lấy số lượng từng biến thể trong giỏ hàng
+  const currentQuantityInCart = (variantId: number) => {
+    const item = cartItems.find((i) => i.productVariantId === variantId);
+    return item ? item.quantity : 0;
+  };
+
+  useEffect(() => {
+    const fetchCart = async () => {
+      try {
+        const cart = await getACart();
+        setCartItems(cart.items || []);
+      } catch (error) {
+        console.error("Lỗi khi tải giỏ hàng:", error);
+      }
+    };
+    fetchCart();
+  }, []);
 
   useEffect(() => {
     const fetchCameraProducts = async () => {
@@ -37,18 +39,14 @@ const Slide4 = () => {
         const cameraCategory = categories.find(
           (cat: any) => cat.name.toLowerCase() === "camera"
         );
-
         if (cameraCategory) {
           const productList = await getProducts(cameraCategory.id);
-          setProducts(productList);
-        } else {
-          console.warn("Không tìm thấy category tên 'Camera'");
+          setProducts(productList.slice(0, 10));
         }
       } catch (error) {
         console.error("Lỗi khi tải sản phẩm Camera:", error);
       }
     };
-
     fetchCameraProducts();
   }, []);
 
@@ -78,21 +76,16 @@ const Slide4 = () => {
           <SwiperSlide key={product.id}>
             <CardItem
               product={product}
-              onClickAddToCart={() => setSelectedProduct(product)}
+              currentQuantityInCart={currentQuantityInCart}
+              refreshCart={async () => {
+                const cart = await getACart();
+                setCartItems(cart.items || []);
+              }}
             />
           </SwiperSlide>
         ))}
       </Swiper>
-
       <div className="custom-swiper-pagination flex justify-center mt-4" />
-
-      {selectedProduct && (
-        <ProductModal
-          product={selectedProduct}
-          onClose={() => setSelectedProduct(null)}
-          onConfirm={() => {}}
-        />
-      )}
     </div>
   );
 };

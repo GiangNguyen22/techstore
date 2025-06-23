@@ -1,0 +1,24 @@
+{
+  "stats": [
+    {
+      "title": "Total Sales",
+      "value": "$10000K",
+      "subtitle": "Last 7 days",
+      "subvalue": "Sales",
+      "percentage": "↑ 40.4%"
+    },
+    {
+      "title": "Total Orders",
+      "value": "10.7K",
+      "badge": "2000.23",
+      "subvalue": "Orders",
+      "percentage": "↑ 14.4%"
+    },
+    {
+      "title": "Pending & Canceled",
+      "value": "509",
+      "subtitle": "Last 7 days",
+      "subvalue": "User 1000"
+    }
+  ]
+}

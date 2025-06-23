@@ -1,46 +1,30 @@
 import React, { useState } from "react";
-import { Heart, ShoppingBag } from "lucide-react";
+import { ShoppingBag } from "lucide-react";
 import ProductModal from "../Cart/ProductModal";
-import { addAProductCart } from "../../api/cart";
-
-interface Product {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  stockQuantity: number;
-  discount: number;
-  image: string;
-  thumbnail: string;
-  type: string;
-  companyName: string;
-  quantity: number;
-  categoryId: number;
-  position: { top: string; left: string };
-  imageIndex: number;
-}
+import { addAProductCart, getACart } from "../../api/cart";
+import { useNotification } from "../../pages/Detail/NotificationProvider";
+import { Product } from "../../types/Product.type";
+import { useNavigate } from "react-router-dom";
 
 interface CardItemProps {
   product: Product;
+  currentQuantityInCart: (variantId: number) => number;
+  refreshCart?: () => Promise<void>;
   onClickAddToCart?: () => void;
 }
 
-const getCartItems = () => {
-  try {
-    const data = localStorage.getItem("cart");
-    return data ? JSON.parse(data) : [];
-  } catch {
-    return [];
-  }
-};
-
-const CardItem: React.FC<CardItemProps> = ({ product }) => {
+const CardItem: React.FC<CardItemProps> = ({
+  product,
+  currentQuantityInCart,
+  refreshCart,
+}) => {
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { showMessage } = useNotification();
+  const navigate = useNavigate();
+
   const isSoldOut = product.stockQuantity === 0;
-  const hasDiscount = product.discount > 0;
-  const finalPrice = Math.round(product.price * (1 - product.discount / 100));
-  const cartItems = getCartItems();
+  const BACKEND_URL = "http://localhost:8080";
 
   const handleAddToCart = async (
     productVariantId: number,
@@ -49,79 +33,89 @@ const CardItem: React.FC<CardItemProps> = ({ product }) => {
     if (loading) return;
     setLoading(true);
     try {
-      await addAProductCart({
-        productVariantId,
-        quantity,
-      });
-      alert(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`);
+      const currentQtyInCart = currentQuantityInCart(productVariantId);
+      const variant = product.variants?.find((v) => v.id === productVariantId);
+      const stockQty = variant?.stockQuantity ?? 0;
+
+      if (currentQtyInCart + quantity > stockQty) {
+        showMessage(
+          `Số lượng trong giỏ hàng đã đạt tối đa cho biến thể này. (Tối đa: ${stockQty})`,
+          "error"
+        );
+        setLoading(false);
+        return;
+      }
+
+      await addAProductCart({ productVariantId, quantity });
       setShowModal(false);
+      await refreshCart?.();
+
+      // Dispatch sự kiện cập nhật giỏ hàng
+      try {
+        const updatedCart = await getACart();
+        const updatedItems = updatedCart.items || [];
+        window.dispatchEvent(
+          new CustomEvent("cart-updated", { detail: updatedItems })
+        );
+      } catch (e) {
+        console.warn("Không thể gửi cart-updated:", e);
+      }
+
+      showMessage(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`, "success");
     } catch (error) {
-      alert("Thêm vào giỏ hàng thất bại. Vui lòng thử lại.");
       console.error(error);
+      showMessage("Thêm vào giỏ hàng thất bại. Vui lòng thử lại.", "error");
     } finally {
       setLoading(false);
     }
   };
 
- const getQuantityInCart = (variantId: number): number => {
-  // console.log("Cart Items from LS:", cartItems);
-
-  const found = cartItems.find(
-    (item: any) => item.productVariant && item.productVariant.id === variantId
-  );
-  return found ? found.quantity : 0;
-};
-
-
   return (
     <>
-      <div className="border rounded-md p-2 flex flex-col relative bg-white shadow-sm hover:shadow-md transition-all h-[370px]">
-        <div className="h-[250px] flex items-center justify-center overflow-hidden border">
+      <div className="bg-white border border-orange-100 rounded-2xl shadow-md hover:shadow-lg p-3 flex flex-col transition-all duration-300 
+      hover:-translate-y-2 group relative h-[390px]">
+        <div
+          className="h-[230px] flex items-center justify-center overflow-hidden 
+          rounded-xl cursor-pointer  "
+          onClick={() => navigate(`/product/${product.id}`)}
+        >
           <img
-            src={product.thumbnail || product.image}
+            src={
+              product.thumbnail
+                ? BACKEND_URL + product.thumbnail
+                : product.image
+            }
             alt={product.name}
-            className="object-contain max-h-full"
+            className="object-contain  max-h-full transition-transform 
+            duration-300 group-hover:scale-105"
           />
         </div>
 
-        <p className="mt-2 text-sm font-semibold line-clamp-2 min-h-[3.5rem]">
+        <p className="mt-3 text-xl text-center font-semibold text-black line-clamp-2 min-h-[3.5rem]">
           {product.name}
         </p>
 
-        <div className="text-sm font-bold mt-1">
+        <div className="text-base font-bold mt-2">
           {isSoldOut ? (
             <span className="text-gray-400">Hết Hàng</span>
-          ) : hasDiscount ? (
-            <>
-              <span className="text-red-600">
-                {finalPrice.toLocaleString()}₫
-              </span>{" "}
-              <span className="line-through text-gray-400 text-xs">
-                {product.price.toLocaleString()}₫
-              </span>
-            </>
           ) : (
-            <span className="text-red-600">
+            <span className="text-black font-semibold text-lg">
               {product.price.toLocaleString()}₫
             </span>
           )}
         </div>
 
-        <div className="flex justify-between items-center mt-2 text-gray-500">
-          <div title={isSoldOut ? "Sản phẩm đã hết hàng" : "Thêm vào giỏ hàng"}>
-            <ShoppingBag
-              className={`w-5 h-5 cursor-pointer ${
-                isSoldOut
-                  ? "text-gray-300 cursor-not-allowed"
-                  : "hover:text-green-500"
-              }`}
-              onClick={() => {
-                if (!isSoldOut) setShowModal(true);
-              }}
-            />
-          </div>
-          <div title="Yêu thích">
-            <Heart className="w-5 h-5 hover:text-red-500 cursor-pointer" />
+        <div className="flex justify-end items-center mt-3">
+          <div
+            title={isSoldOut ? "Sản phẩm đã hết hàng" : "Thêm vào giỏ hàng"}
+            className={`p-2 rounded-full ${
+              isSoldOut
+                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                : "bg-orange-100 text-orange-600 hover:bg-orange-200 hover:text-orange-700 cursor-pointer"
+            } transition`}
+            onClick={() => !isSoldOut && setShowModal(true)}
+          >
+            <ShoppingBag className="w-5 h-5 " />
           </div>
         </div>
       </div>
@@ -130,11 +124,9 @@ const CardItem: React.FC<CardItemProps> = ({ product }) => {
         <ProductModal
           product={product}
           onClose={() => setShowModal(false)}
-          onConfirm={(variantId, quantity) =>
-            handleAddToCart(variantId, quantity)
-          }
+          onConfirm={handleAddToCart}
           loading={loading}
-          currentQuantityInCart={getQuantityInCart}
+          currentQuantityInCart={currentQuantityInCart}
         />
       )}
     </>

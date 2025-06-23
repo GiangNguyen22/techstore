@@ -27,7 +27,7 @@ const Slide = () => {
 
   return (
     <div
-      className="relative bg-blue-50 pt-5 overflow-hidden max-w-full mx-auto"
+      className="relative  pt-5 overflow-hidden max-w-full mx-auto"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
