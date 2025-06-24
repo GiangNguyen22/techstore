@@ -77,6 +77,8 @@ const getProductById = async (id: number): Promise<any> => {
   return res.data;
 };
 
+
+
 export {
   addProduct,
   updateProduct,
