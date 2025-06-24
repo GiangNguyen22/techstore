@@ -36,7 +36,8 @@ public class WebSecurityConfig {
 
     private static final String[] publicApis = {
             "/api/auth/**",
-            "/api/order"
+            // "/api/order/**"
+            "/api/stats/**"
     };
 
     @Bean
@@ -46,7 +47,8 @@ public class WebSecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/category", "/api/products").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/category/**", "/api/products")
+                        .permitAll()
                         .requestMatchers("/images/**").permitAll() // 👈 Quan trọng!
                         .requestMatchers(HttpMethod.POST, "/api/products/**").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/api/products/**").permitAll()
@@ -57,9 +59,9 @@ public class WebSecurityConfig {
                         .requestMatchers("/api/chat/**").permitAll()
                         .requestMatchers("/ws/**").permitAll()
 
-                        .requestMatchers("/api/order").authenticated()
-                        .anyRequest().authenticated()
-                )
+                        .requestMatchers("/api/order/**").authenticated()
+                        .requestMatchers("/api/stats/**").authenticated()
+                        .anyRequest().authenticated())
                 .addFilterBefore(new JWTAuthenticationFilter(userDetailsService, jwtTokenHelper),
                         UsernamePasswordAuthenticationFilter.class);
 
@@ -74,7 +76,11 @@ public class WebSecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000")); // chính xác origin của FE
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:3000",
+                "http://192.168.119.146:3000",
+                "http://192.168.119.1:3000"));
+        // chính xác origin của FE
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // cụ thể hơn là tốt nhất
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true); // nếu frontend gửi kèm cookie hoặc header Authorization
@@ -84,15 +90,13 @@ public class WebSecurityConfig {
         return source;
     }
 
+    //
+    // @Bean
+    // public WebSecurityCustomizer webSecurityCustomizer() {
+    // return web -> web.ignoring().requestMatchers(publicApis);
+    // }
 
-//
-//    @Bean
-//    public WebSecurityCustomizer webSecurityCustomizer() {
-//        return web -> web.ignoring().requestMatchers(publicApis);
-//    }
-
-
-    //tạo đối tượng AuthenticationManager để xác thực người dùng
+    // tạo đối tượng AuthenticationManager để xác thực người dùng
     @Bean
     public AuthenticationManager authenticationManager() throws Exception {
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
@@ -106,6 +110,5 @@ public class WebSecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder(); // tạo encoder hỗ trợ nhiều loại mã hóa
     }
-
 
 }

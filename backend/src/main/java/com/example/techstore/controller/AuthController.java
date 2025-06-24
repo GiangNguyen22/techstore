@@ -21,7 +21,11 @@ import com.example.techstore.security.service.RefreshTokenService;
 import java.util.Map;
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
+@CrossOrigin(origins = {
+    "http://localhost:3000",
+    "http://192.168.119.146:3000"
+},
+ allowCredentials = "true")
 public class AuthController {
     @Autowired
     AuthenticationManager authenticationManager;

@@ -17,13 +17,12 @@ import com.example.techstore.service.impl.UserService;
 
 import java.security.Principal;
 import java.util.List;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 @RestController
 @RequestMapping("/api/user")
-@CrossOrigin(origins = "http://localhost:3000")  // cho phép React app truy cập
+@CrossOrigin(origins = {"http://localhost:3000",
+    "http://192.168.119.146:3000"})  // cho phép React app truy cập
 public class UserController {
     @Autowired
     private UserDetailsService userDetailsService;

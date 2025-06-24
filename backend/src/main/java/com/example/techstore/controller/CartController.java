@@ -15,7 +15,11 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/cart")
-@CrossOrigin(origins = "http://localhost:3000")  // cho phép React app truy cập
+@CrossOrigin(origins = {
+    "http://localhost:3000",
+    "http://192.168.119.146:3000"
+})
+ // cho phép React app truy cập
 public class CartController {
     @Autowired
     private CartService cartService;

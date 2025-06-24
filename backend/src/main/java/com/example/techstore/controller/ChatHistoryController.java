@@ -9,7 +9,9 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/chat")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins ={"http://localhost:3000",
+    "http://192.168.119.146:3000",
+    "http://192.168.119.1:3000"})
 public class ChatHistoryController {
 
     @Autowired

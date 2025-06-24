@@ -12,7 +12,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/category")
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
+@CrossOrigin(origins = { "http://localhost:3000",
+        "http://192.168.119.146:3000" }, allowCredentials = "true")
 public class CategoryController {
     @Autowired
     private CategoryService categoryService;
@@ -20,7 +21,7 @@ public class CategoryController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getCategoryById(@PathVariable(name = "id") Integer categoryId) {
         Category category = categoryService.getCategoryById(categoryId);
-        if(category == null) {
+        if (category == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("Category not found");
         }
@@ -40,7 +41,8 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Category> updateCategory(@PathVariable(name = "id") Integer categoryId, @RequestBody Category category) {
+    public ResponseEntity<Category> updateCategory(@PathVariable(name = "id") Integer categoryId,
+            @RequestBody Category category) {
         Category category1 = categoryService.updateCategory(category, categoryId);
         return new ResponseEntity<>(category1, HttpStatus.OK);
     }

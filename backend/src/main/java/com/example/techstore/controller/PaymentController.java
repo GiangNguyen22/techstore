@@ -38,9 +38,9 @@ public class PaymentController {
     public void vnpayReturn(@RequestParam Map<String, String> allParams, HttpServletResponse response) throws IOException {
         String result = paymentService.handleVnPayReturn(allParams);
         if ("Successful payment".equals(result)) {
-            response.sendRedirect("http://localhost:3000/payment-success");
+            response.sendRedirect("http://192.168.119.146:3000/payment-success");
         } else {
-            response.sendRedirect("http://localhost:3000/payment-fail");
+            response.sendRedirect("http://192.168.119.146:3000/payment-fail");
         }
     }
 }
