@@ -7,11 +7,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { register } from "../../api/auth";
 import { AxiosError } from "axios";
-
+import { useNotification } from "../Detail/NotificationProvider";
 const RegisterComponent = () => {
   const navigate = useNavigate();
   const fields = ["name", "email", "phone", "password"] as const;
-
+  const {showMessage} = useNotification(); 
   const mutation = useMutation({
     mutationFn: (values: {
       name: string;
@@ -28,7 +28,7 @@ const RegisterComponent = () => {
     onError: (error) => {
       const axiosError = error as AxiosError;
       const errorData = axiosError.response?.data as { message?: string };
-      alert(errorData?.message || "Lỗi đăng ký: Không thể kết nối đến máy chủ");
+     showMessage("Lỗi đăng ký: Không thể kết nối đến máy chủ");
     },
   });
 

@@ -77,7 +77,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
     if (totalQuantity > selectedVariant.stockQuantity) {
       showMessage(
         "Số lượng trong giỏ sẽ vượt quá số lượng tồn kho. Vui lòng giảm số lượng.",
-        "success"
+        "error"
       );
       return;
     }

@@ -65,9 +65,9 @@ const getTopSellingProducts = async (): Promise<any> => {
 
 // Tìm kiếm nâng cao
 const searchProducts = async (keyword: string): Promise<any> => {
-  console.log("Searching keyword:", keyword);
+  // console.log("Searching keyword:", keyword);
   const res = await instance.get(`/products/search?keyword=${encodeURIComponent(keyword)}`);
-  console.log("Response data:", res.data);
+  // console.log("Response data:", res.data);
   return res.data;
 };
 

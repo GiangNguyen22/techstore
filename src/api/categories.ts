@@ -11,14 +11,7 @@ const getCategories = async (): Promise<any> => {
   }
 };
 
-const getCategoriesNoPaging = async (): Promise<any> => {
-  try {
-    const res = await instance.get("/public/categories/all");
-    return res.data;
-  } catch (error) {
-    throw error;
-  }
-};
+
 
 const getCategoryById = async (id: string): Promise<any> => {
   try {
@@ -80,7 +73,6 @@ const deleteCategory = async (id: string): Promise<any> => {
 
 export {
   getCategories,
-  getCategoriesNoPaging,
   createCategory,
   deleteCategory,
   getCategoryById,

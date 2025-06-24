@@ -12,8 +12,12 @@ import Slide2 from "../../components/commom/Slide2";
 import Slide4 from "../../components/commom/Slide4";
 import LaptopProductList from "./LaptopProductList";
 import UserChatPopup from "../../components/Chat/UserChatPopUp";
-import AdminChat from "../../components/Admin/AdminChat";
 import { useNavigate } from "react-router-dom";
+import SmartPhoneProductList from "./SmartPhoneProductList";
+import Accessories from "./Accessories";
+import GamingTable from "./GamingTable";
+import SupportSections from "./SupportSections";
+import MonitorProductList from "./MonitorProductList";
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -24,13 +28,19 @@ const { token, isAdmin, username } = useSelector((state: RootState) => state.aut
   // console.log("✅ username:", username);
 
   return (
-    <div className="bg-gradient-to-br from-orange-50 via-white to-amber-100 w-full min-h-screen overflow-hidden">
+    <div className="bg-white w-full min-h-screen overflow-hidden">
       <Header />
       <Slide />
       <Slide2 />
       <Slide3 />
       <Slide4 />
       <LaptopProductList />
+      <SmartPhoneProductList/>
+      <Accessories/>
+      <GamingTable/> 
+      <MonitorProductList/>
+      <SupportSections/>
+     
       {token && !isAdmin && username && (
         <UserChatPopup authToken={token} username={username} />
       )}       

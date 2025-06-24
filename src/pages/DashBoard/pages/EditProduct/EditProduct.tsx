@@ -11,7 +11,7 @@ import { Card } from "../../../../components/ui/Card";
 import { Product } from "../../../../types/Product.type";
 import ProductModal from "./components/ProductModal";
 import { useSearchParams } from "react-router-dom";
-
+import Sidebar from "../../Sidebar";
 const EditProduct = () => {
   const [open, setOpen] = useState(false);
   const [product, setProduct] = useState<Product | null>(null);
@@ -39,7 +39,11 @@ const EditProduct = () => {
     queryKey: ["categories-admin"],
     queryFn: () => getCategories(),
   });
-
+  const getCategoryName = (id: number) => {
+    if (!categoryData) return "";
+    const found = categoryData.find((c: any) => c.id === id);
+    return found ? found.name : "";
+  };
   // Hàm thống nhất cho Add/Edit/Delete
   const handleSubmit = async (
     mode: "add" | "edit" | "delete",
@@ -67,7 +71,9 @@ const EditProduct = () => {
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-slate-50 to-zinc-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-600 mx-auto mb-4"></div>
-          <p className="text-lg font-medium text-gray-600">Đang tải dữ liệu...</p>
+          <p className="text-lg font-medium text-gray-600">
+            Đang tải dữ liệu...
+          </p>
         </div>
       </div>
     );
@@ -97,13 +103,14 @@ const EditProduct = () => {
 
   return (
     <div className="flex bg-blue-50 gap-20 h-auto">
-      <Sidebar />
       <div className="p-6 w-full">
         <ProductModal
           open={open}
           setOpen={setOpen}
           categoryData={categoryData}
-          product={!product || Object.keys(product).length === 0 ? null : product}
+          product={
+            !product || Object.keys(product).length === 0 ? null : product
+          }
           formMode={formMode}
           onSubmit={handleSubmit}
         />
@@ -141,13 +148,17 @@ const EditProduct = () => {
                       {/* Company and Stock */}
                       <div className="grid grid-cols-2 gap-3">
                         <div className="p-3 bg-gradient-to-br from-violet-50 to-purple-50 rounded-xl border border-violet-100">
-                          <div className="text-xs text-violet-600 mb-1 font-medium">🏢 Hãng</div>
+                          <div className="text-xs text-violet-600 mb-1 font-medium">
+                            🏢 Hãng
+                          </div>
                           <div className="font-semibold text-violet-700 text-sm truncate">
                             {item.companyName}
                           </div>
                         </div>
                         <div className="p-3 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl border border-blue-100">
-                          <div className="text-xs text-blue-600 mb-1 font-medium">📦 Tồn kho</div>
+                          <div className="text-xs text-blue-600 mb-1 font-medium">
+                            📦 Tồn kho
+                          </div>
                           <div className="font-semibold text-blue-700 text-sm">
                             {item.stockQuantity}
                           </div>
@@ -155,30 +166,61 @@ const EditProduct = () => {
                       </div>
 
                       {/* Product Type */}
-                      <div className="p-3 bg-gradient-to-r from-pink-50 to-rose-50 rounded-xl border border-pink-100">
+                      {/* <div className="p-3 bg-gradient-to-r from-pink-50 to-rose-50 rounded-xl border border-pink-100">
                         <div className="text-xs text-pink-600 mb-1 font-medium">🏷️ Loại sản phẩm</div>
                         <div className="font-semibold text-pink-700 text-sm">
                           {item.type}
                         </div>
-                      </div>
-
-                      {/* Variants */}
-                      {Array.isArray(item.variants) && item.variants.length > 0 && (
-                        <div>
-                          <h4 className="text-sm font-bold text-slate-700 mb-3 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                            🎨 Biến thể
-                          </h4>
-                          <div className="space-y-2 max-h-24 overflow-y-auto">
-                            {item.variants.map((v, idx) => (
-                              <div key={idx} className="text-xs bg-gradient-to-r from-indigo-50 to-purple-50 p-3 rounded-lg border border-indigo-100">
-                                <span className="font-semibold text-indigo-600">Màu:</span> <span className="text-slate-700">{v.color}</span> • 
-                                <span className="font-semibold text-indigo-600"> Size:</span> <span className="text-slate-700">{v.size}</span> • 
-                                <span className="font-semibold text-indigo-600"> SL:</span> <span className="text-slate-700">{v.stockQuantity}</span>
-                              </div>
-                            ))}
-                          </div>
+                      </div> */}
+                      {/* Category Name */}
+                      <div className="p-3 bg-gradient-to-br from-yellow-50 to-amber-50 rounded-xl border border-yellow-100">
+                        <div className="text-xs text-yellow-600 mb-1 font-medium">
+                          📂 Danh mục
                         </div>
-                      )}
+                        <div className="font-semibold text-yellow-700 text-sm truncate">
+                          {getCategoryName(item.categoryId)}
+                        </div>
+                      </div>
+                      {/* Variants */}
+                      {Array.isArray(item.variants) &&
+                        item.variants.length > 0 && (
+                          <div>
+                            <h4 className="text-sm font-bold text-slate-700 mb-3 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                              🎨 Biến thể
+                            </h4>
+                            <div className="space-y-2 max-h-24 overflow-y-auto">
+                              {item.variants.map((v, idx) => (
+                                <div
+                                  key={idx}
+                                  className="text-xs bg-gradient-to-r from-indigo-50 to-purple-50 p-3 rounded-lg border border-indigo-100"
+                                >
+                                  <span className="font-semibold text-indigo-600">
+                                    Màu:
+                                  </span>{" "}
+                                  <span className="text-slate-700">
+                                    {v.color}
+                                  </span>{" "}
+                                  •
+                                  <span className="font-semibold text-indigo-600">
+                                    {" "}
+                                    Size:
+                                  </span>{" "}
+                                  <span className="text-slate-700">
+                                    {v.size}
+                                  </span>{" "}
+                                  •
+                                  <span className="font-semibold text-indigo-600">
+                                    {" "}
+                                    SL:
+                                  </span>{" "}
+                                  <span className="text-slate-700">
+                                    {v.stockQuantity}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                     </div>
 
                     {/* Action Buttons */}
@@ -214,8 +256,18 @@ const EditProduct = () => {
           <div className="text-center py-20 px-4">
             <div className="max-w-md mx-auto">
               <div className="w-32 h-32 mx-auto mb-8 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center shadow-lg">
-                <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                <svg
+                  className="w-16 h-16 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                  />
                 </svg>
               </div>
               <h3 className="text-3xl font-bold text-gray-900 mb-4 tracking-tight">
@@ -232,8 +284,18 @@ const EditProduct = () => {
                 }}
                 className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-2xl shadow-lg shadow-blue-500/20 hover:shadow-xl hover:shadow-blue-500/30 transform hover:scale-105 transition-all duration-300 active:scale-95"
               >
-                <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                <svg
+                  className="w-5 h-5 mr-3"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                  />
                 </svg>
                 Thêm sản phẩm đầu tiên
               </button>

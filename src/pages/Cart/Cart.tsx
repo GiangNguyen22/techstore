@@ -108,9 +108,10 @@ const Cart: React.FC = () => {
   }, []);
 
   const handleBuyNow = () => {
-    const selectedItems = cartItems.filter((item) =>
-      selectedItemIds.has(item.id)
-    );
+  const selectedItems = cartItems.filter((item) =>
+  selectedItemIds.has(item.id)
+);
+
     if (selectedItems.length === 0) {
       showMessage("Vui lòng chọn ít nhất một sản phẩm để mua.", "error");
       return;
@@ -127,11 +128,11 @@ const Cart: React.FC = () => {
       return;
     }
 
-    const orderItems = cartItems.map((item) => ({
-      productId: item.productId,
-      productVariantId: item.productVariantId,
-      quantity: item.quantity,
-    }));
+    const orderItems = selectedItems.map((item) => ({
+  productId: item.productId,
+  productVariantId: item.productVariantId,
+  quantity: item.quantity,
+}));
 
     const cartItemIds = selectedItems.map((item) => item.id); // 👈 gửi thêm ID giỏ hàng
 

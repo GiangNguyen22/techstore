@@ -29,7 +29,7 @@ const HeaderBot: React.FC<HeaderBotProps> = ({ botMenuOpen, setBotMenuOpen }) =>
   }, []);
 
   return (
-    <div className="bg-white h-20 flex items-center px-40 shadow-sm border-t border-orange-200 relative rounded-xl">
+    <div className="bg-white h-16 flex items-center px-40 shadow-sm border-t border-orange-200 relative rounded-xl">
       {/* Nút danh mục sản phẩm */}
       <div
         className="relative h-full flex items-center cursor-pointer hover:bg-orange-200 px-4 rounded-xl transition duration-200"
@@ -69,10 +69,16 @@ const HeaderBot: React.FC<HeaderBotProps> = ({ botMenuOpen, setBotMenuOpen }) =>
           Store
         </Link>
         <Link
-          to="/lien-he"
+          to="/aboutUs"
           className="text-gray-700 hover:text-orange-600 font-medium transition-all duration-200 px-3 py-2 rounded-xl hover:bg-orange-200"
         >
-          Liên Hệ
+          Về chúng tôi
+        </Link>
+         <Link
+          to="/lienhe"
+          className="text-gray-700 hover:text-orange-600 font-medium transition-all duration-200 px-3 py-2 rounded-xl hover:bg-orange-200"
+        >
+         Liên hệ
         </Link>
       </nav>
     </div>

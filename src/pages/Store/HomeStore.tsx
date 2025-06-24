@@ -13,30 +13,17 @@ import FeaturedProductSection from "./FeaturedProductSection";
 import Header from "../../components/commom/Header/Header";
 import SmartPhoneSlide from "./SmartPhoneSlide";
 import FooterComponent from "../../components/commom/FooterComponent";
+import AccessoriesBanner from "./AccessoriesBanner";
 const HomeStore = () => {
-  const swiperRef = useRef<SwiperCore | null>(null);
-  const [isBeginning, setIsBeginning] = useState(true);
-  const [isEnd, setIsEnd] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
-  const handlePrev = () => {
-    if (swiperRef.current) {
-      swiperRef.current.slidePrev();
-    }
-  };
-
-  const handleNext = () => {
-    if (swiperRef.current) {
-      swiperRef.current.slideNext();
-    }
-  };
-
   return (
   <div className="bg-white w-full h-auto overflow-hidden">
       <Header/>
       <ReusableCarousel />
       <FeaturedProductSection/>
       <SmartPhoneSlide/>
+      <AccessoriesBanner/>
       <FooterComponent/>
+      
     </div>
   );
 };
