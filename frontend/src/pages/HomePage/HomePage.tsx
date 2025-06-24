@@ -37,7 +37,8 @@ const HomePage = () => {
             username: res.name,
             token: token,
             isAdmin:
-              res.role?.authority === "ADMIN",
+              res.role?.name === "ROLE_ADMIN" ||
+              res.role?.authority === "ROLE_ADMIN",
           })
         );
       } catch (err) {

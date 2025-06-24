@@ -9,6 +9,9 @@ import CategoryProductListPage from "../pages/Detail/CategoryProductListPage";
 import Login from "../pages/Login/Login";
 import Register from "../pages/Register/Register";
 import VerifyPage from "../pages/Register/VerifyPage";
+import Dashboard_Admin from "../pages/DashBoard/Dashboard_Admin";
+import DashboardLayout from "../components/dashboard/DashboardLayout";
+
 import Profile from "../pages/Profile/Profile";
 import OrderPage from "../pages/Order/OrderPage";
 import UserOrdersPage from "../pages/Order/UserOrdersPage";
@@ -36,6 +39,16 @@ function useRouterElement() {
     {
       path: "/dashboard",
       element: <DashBoard />,
+    },
+    {
+      path: "/dashboard_layout",
+      element: <DashboardLayout />,
+    },
+
+
+    {
+      path: "/dashboard_admin",
+      element: <Dashboard_Admin />,
     },
     {
       path: "/dashboard/editProduct",
