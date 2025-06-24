@@ -237,10 +237,12 @@ const ProductForm: React.FC<ProductFormProps> = ({
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8 px-4 flex items-center justify-center">
+   <div className="w-full max-w-[1600px] min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8 px-4 flex items-center justify-center">
+      
+
   <form
     onSubmit={handleSubmit}
-    className="w-full max-w-[1200px] mx-4 bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100 flex flex-col"
+    className="w-full max-w-[1200px] mx-4 bg-white rounded-3xl shadow-4xl overflow-hidden border border-gray-100 flex flex-col"
     style={{ maxHeight: '90vh' }}
   >
         {/* Header */}

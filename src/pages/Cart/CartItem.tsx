@@ -27,7 +27,7 @@ const totalInCart = currentQuantityInCart(item.productVariantId);
 const remaining = Math.max(0, item.stockQuantity - (totalInCart - item.quantity)); 
 const disableIncrease = item.quantity >= remaining;
 // console.log(item);
-const BACKEND_URL = "http://localhost:8080";
+const BACKEND_URL = "http://192.168.119.146:8080";
 
   return (
     <div className="grid grid-cols-12 items-center border-b pb-4">

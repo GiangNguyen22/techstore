@@ -11,6 +11,7 @@ import {
 } from "../../../api/categories";
 import { useLocation, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { getProducts } from "../../../api/products";
 
 interface Category {
   id: number;
@@ -71,7 +72,7 @@ const CategoriesContent = () => {
       console.error("Lỗi chi tiết:", error);
       alert(
         "Thêm thất bại: " +
-          (error.response?.data?.message || "Lỗi không xác định")
+        (error.response?.data?.message || "Lỗi không xác định")
       );
     } finally {
       setAdding(false);
@@ -88,6 +89,7 @@ const CategoriesContent = () => {
       alert("Xoá category thất bại");
     }
   };
+
 
   // Bắt đầu sửa category
   const startEditing = (category: Category) => {
@@ -123,6 +125,25 @@ const CategoriesContent = () => {
     }
   };
 
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
+  const [categoryProducts, setCategoryProducts] = useState<any[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(false);
+
+  const handleViewProducts = async (categoryId: number) => {
+    setSelectedCategoryId(categoryId);
+    setLoadingProducts(true);
+    try {
+      const data = await getProducts(categoryId);
+      setCategoryProducts(data);
+    } catch (err) {
+      alert("Lỗi khi tải sản phẩm");
+      setCategoryProducts([]);
+    } finally {
+      setLoadingProducts(false);
+    }
+  };
+
+
   return (
     <div className="p-6 max-w-6xl mx-auto">
       {/* Header */}
@@ -131,7 +152,7 @@ const CategoriesContent = () => {
           <h2 className="text-2xl font-bold text-gray-800">Categories</h2>
           <Hand className="animate-wiggle-more animate-infinite text-yellow-500" />
         </div>
-        
+
         {!showAddForm && (
           <button
             onClick={() => setShowAddForm(true)}
@@ -249,12 +270,14 @@ const CategoriesContent = () => {
                       {category.products || 0} products
                     </p>
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
-                    <button className="text-sm text-blue-500 hover:underline">
+                    <button
+                      onClick={() => handleViewProducts(category.id)}
+                      className="text-sm text-blue-500 hover:underline">
                       View Products
                     </button>
-                    
+
                     <div className="flex gap-2">
                       <button
                         onClick={() => startEditing(category)}
@@ -272,6 +295,26 @@ const CategoriesContent = () => {
                       </button>
                     </div>
                   </div>
+
+                  {selectedCategoryId === category.id && (
+                    <div className="mt-3 border-t pt-3">
+                      {loadingProducts ? (
+                        <p className="text-sm text-gray-500">Đang tải sản phẩm...</p>
+                      ) : categoryProducts.length === 0 ? (
+                        <p className="text-sm text-gray-500">Không có sản phẩm nào.</p>
+                      ) : (
+                        <ul className="space-y-1 text-sm text-gray-700">
+                          {categoryProducts.map((product) => (
+                            <li key={product.id} className="flex justify-between">
+                              <span>{product.name}</span>
+                              <span>${product.price}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  )}
+
                 </>
               )}
             </div>

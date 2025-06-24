@@ -9,7 +9,7 @@ import {
 import { getAccessTokenFromRefreshToken } from "./auth";
 
 const instance: AxiosInstance = axios.create({
-  baseURL: "http://localhost:8080/api",
+  baseURL: "http://192.168.119.146:8080/api",
   withCredentials: false,
   timeout: 15000,
   // headers: {

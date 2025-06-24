@@ -72,6 +72,7 @@ import AdminRole from './content/AdminRole';
 import ControlAuthority from './content/ControlAuthority';
 import FooterComponent from '../commom/FooterComponent';
 import EditProduct from '../../pages/DashBoard/pages/EditProduct/EditProduct';
+import ProductMedia from './content/ProductMedia';
 
 
 const DashboardLayout = () => {
@@ -98,7 +99,7 @@ const DashboardLayout = () => {
   ];
   const action = [
   { icon: require('lucide-react').LogOut, label: 'Logout',onClick: () => console.log('Logging out...') },
-  { icon: require('lucide-react').Store, label: 'Your Shop', onClick: () => window.location.href = 'http://localhost:3000/'},
+  { icon: require('lucide-react').Store, label: 'Your Shop', onClick: () => window.location.href = 'http://192.168.119.146:3000/'},
 ];
 
 // const allMenus = [...menuItems, ...productMenuItems, ...adminMenuItems, ...action];
@@ -118,7 +119,7 @@ const DashboardLayout = () => {
             case 'Add Products':
                 return <AddProduct />;
             case 'Product Media':
-                return <div className="text-gray-500">Product Media content goes here</div>;
+                return <ProductMedia />;
             case 'Product List':
                 return <EditProduct/>;
             case 'Admin role':

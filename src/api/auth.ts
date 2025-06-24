@@ -1,7 +1,7 @@
 import axios from "axios";
 import instance from "./interceptor";
 
-const urlAuth = "http://localhost:8080/api/auth";
+const urlAuth = "http://192.168.119.146:8080/api/auth";
 
 const register = async (
   name: string,

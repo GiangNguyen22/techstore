@@ -105,7 +105,7 @@ const DetailProduct: React.FC = () => {
         <img
           src={
             product.thumbnail
-              ? "http://localhost:8080" + product.thumbnail
+              ? "http://192.168.119.146:8080" + product.thumbnail
               : product.image
           }
           alt={product.name}

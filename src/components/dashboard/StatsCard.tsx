@@ -40,6 +40,7 @@ interface StatsCardProps {
   subvalue?: string;
   percentage?: string;
   badge?: string;
+   icon?: React.ReactNode;
 }
 
 const StatsCard: React.FC<StatsCardProps> = ({

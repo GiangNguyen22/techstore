@@ -24,7 +24,7 @@ const CardItem: React.FC<CardItemProps> = ({
   const navigate = useNavigate();
 
   const isSoldOut = product.stockQuantity === 0;
-  const BACKEND_URL = "http://192.168.119.146:8080/";
+  const BACKEND_URL = "http://192.168.119.146:8080";
 
   const handleAddToCart = async (
     productVariantId: number,

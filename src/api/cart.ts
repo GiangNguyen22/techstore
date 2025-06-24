@@ -17,7 +17,7 @@ interface AddToCartRequest {
   quantity: number;
 }
 
-const baseUrl = "http://localhost:8080/api/cart";
+const baseUrl = "http://192.168.119.146:8080/api/cart";
 
 const getAllCarts = async (): Promise<any> => {
   try {

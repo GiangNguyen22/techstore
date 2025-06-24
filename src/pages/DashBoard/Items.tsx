@@ -15,7 +15,7 @@ const Items = ({ data }: ItemsType) => {
       <div className="w-3/12 text-sm">{data?.id}</div>
       <div className="w-3/12 text-sm">{data?.name}</div>
       <div className="w-3/12 text-sm">
-        <img src={`http://localhost:8080/${data.image}`} alt="" />
+        <img src={`http://192.168.119.146:8080/${data.image}`} alt="" />
       </div>
       <div className="w-3/12 text-sm">
         <Action id={data?.id} />

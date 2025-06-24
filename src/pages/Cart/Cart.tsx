@@ -101,7 +101,7 @@ console.log(cartItems);
     loadCart();
   }, []);
 
-  const BACKEND_URL = "http://localhost:8080";
+  const BACKEND_URL = "http://192.168.119.146:8080";
 
   const handleBuyNow = () => {
     const invalidItems = cartItems.filter(

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   LineChart,
   Line,
@@ -11,7 +11,16 @@ import {
   CartesianGrid,
 } from 'recharts';
 import { MoreHorizontal } from 'lucide-react';
+import { get } from 'http';
+import { getStatsThisWeek } from '../../api/stats';
 
+interface WeeklyStats {
+  customers: number;
+  totalProducts: number;
+  stockProducts: number;
+  outOfStock: number;
+  benefit: number;
+}
 const weeklyData = [
   { day: 'Sun', value: 15 },
   { day: 'Mon', value: 25 },
@@ -22,7 +31,29 @@ const weeklyData = [
   { day: 'Sat', value: 30 },
 ];
 
+
 const WeeklyReport = () => {
+
+
+  const [loading, setLoading] = useState(true);
+const [reportThisWeek, setReportThisWeek] = useState<WeeklyStats|null>(null);
+useEffect(() => {
+  const fetchReportThisWeek = async () => {
+    try {
+      const response = await getStatsThisWeek();
+      setReportThisWeek(response);
+      console.log('Weekly Report:', response); // log đúng dữ liệu
+
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching weekly report:', error);
+      setLoading(false);
+    }
+  };
+  fetchReportThisWeek();
+}, []);
+console.log('Report This Week:', reportThisWeek); // log đúng dữ liệu
+
   return (
     <div className="col-span-2 bg-white p-6 rounded-lg shadow-sm">
       <div className="flex items-center justify-between mb-6">
@@ -36,11 +67,11 @@ const WeeklyReport = () => {
 
       {/* Stats */}
       <div className="grid grid-cols-5 gap-6 mb-6">
-        <div><div className="text-2xl font-bold">52k</div><div className="text-sm text-gray-500">Customers</div></div>
-        <div><div className="text-2xl font-bold">3.5k</div><div className="text-sm text-gray-500">Total Products</div></div>
-        <div><div className="text-2xl font-bold">2.5k</div><div className="text-sm text-gray-500">Stock Products</div></div>
-        <div><div className="text-2xl font-bold">0.5k</div><div className="text-sm text-gray-500">Out of Stock</div></div>
-        <div><div className="text-2xl font-bold">250k</div><div className="text-sm text-gray-500">Revenue</div></div>
+        <div><div className="text-2xl font-bold">{reportThisWeek?.customers}</div><div className="text-sm text-gray-500">Customers</div></div>
+        <div><div className="text-2xl font-bold">{reportThisWeek?.totalProducts}</div><div className="text-sm text-gray-500">Total Products</div></div>
+        <div><div className="text-2xl font-bold">{reportThisWeek?.stockProducts}</div><div className="text-sm text-gray-500">Stock Products</div></div>
+        <div><div className="text-2xl font-bold">{reportThisWeek?.outOfStock}</div><div className="text-sm text-gray-500">Out of Stock</div></div>
+        <div><div className="text-2xl font-bold">{reportThisWeek?.benefit}</div><div className="text-sm text-gray-500">Revenue</div></div>
       </div>
 
       {/* Line Chart with filled area */}

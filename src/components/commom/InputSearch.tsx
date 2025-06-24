@@ -69,7 +69,7 @@ const InputSearch = ({ className }: { className?: string }) => {
     setText(e.target.value);
     setIsSearching(e.target.value.length > 0);
   };
-  const BACKEND_URL = "http://localhost:8080";
+  const BACKEND_URL = "http://192.168.119.146:8080";
 
   return (
     <div ref={containerRef} className={`relative w-full ${className}`}>

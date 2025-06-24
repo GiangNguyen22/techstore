@@ -6,6 +6,9 @@ import SalesByCountry from '../SalesByCountry';
 import TransactionsTable from '../TransactionsTable';
 import TopProducts from '../TopProducts';
 import {getPaymentTotal} from '../../../api/payment';
+import { getOrdersReport } from '../../../api/orders';
+import { ShoppingCart, DollarSign, AlertCircle } from 'lucide-react';
+
 interface Stat {
   title: string;
   value: string;
@@ -23,6 +26,11 @@ interface RawSaleReport {
   totalSale: number;
   previousSale: number;
   increaseSale: number;
+}
+interface OrderReport {
+  totalOrders: number;
+ previousTotalOrders: number;
+  percent: number;
 }
 
 const DashboardContent = () => {
@@ -45,6 +53,27 @@ const DashboardContent = () => {
       });
   }, []);
   console.log(saleData);
+
+const [orderData, setOrderData] = useState<OrderReport | null>(null);
+
+useEffect(() => {
+  const fetchOrdersReport = async () => {
+    try {
+      const data: OrderReport = await getOrdersReport();
+      setOrderData({
+        totalOrders: data.totalOrders || 0,
+        previousTotalOrders: data.previousTotalOrders || 0,
+        percent: data.percent || 0,
+      });
+    } catch (error) {
+      console.error("Error fetching orders report:", error);
+      setOrderData(null);
+    }
+  };
+  fetchOrdersReport();
+}, []);
+
+
   if (loading) return <p className="text-gray-500">Loading dashboard...</p>;
 if (!saleData) {
   return <p>Loading...</p>;
@@ -55,17 +84,17 @@ if (!saleData) {
       <div className="grid grid-cols-3 gap-6 mb-6">
         <StatsCard
           title="Total Sales"
-          value={`$${saleData.totalSale.toLocaleString()}`}
+          value={`${saleData.totalSale.toLocaleString()}`}
           subtitle="Last 7 days"
           subvalue="Sales"
           percentage={`↑ ${saleData.increaseSale}%`}
         />
         <StatsCard
           title="Total Orders"
-          value="10.7K"
-          badge="2000.23"
+          value={`${orderData?.totalOrders.toLocaleString()}`}
+          //badge="2000.23"
           subvalue="Orders"
-          percentage="↑ 14.4%"
+          percentage={`↑ ${orderData?.percent}%`}
         />
         <StatsCard
           title="Pending & Canceled"
