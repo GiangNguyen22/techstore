@@ -91,13 +91,18 @@ const ProductModal: React.FC<ProductModalProps> = ({
 
     // Chuyển sang trang /order với dữ liệu biến thể và số lượng đã chọn,
     // có thể truyền state hoặc query param để trang order lấy và hiện thông tin
-    navigate("/order", {
-      state: {
+   navigate("/order", {
+  state: {
+    orderItems: [
+      {
         productId: product.id,
         productVariantId: selectedVariant.id,
         quantity,
       },
-    });
+    ],
+    cartItemIds: [],
+  },
+});
     onClose();
   };
 

@@ -72,11 +72,9 @@ const CardItem: React.FC<CardItemProps> = ({
 
   return (
     <>
-      <div className="bg-white border border-orange-100 rounded-2xl shadow-md hover:shadow-lg p-3 flex flex-col transition-all duration-300 
-      hover:-translate-y-2 group relative h-[390px]">
+      <div className="bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md p-4 flex flex-col transition-all duration-300 hover:-translate-y-1 group relative h-[400px] font-sans">
         <div
-          className="h-[230px] flex items-center justify-center overflow-hidden 
-          rounded-xl cursor-pointer  "
+          className="h-[230px] flex items-center justify-center overflow-hidden rounded-xl cursor-pointer bg-gray-50"
           onClick={() => navigate(`/product/${product.id}`)}
         >
           <img
@@ -86,36 +84,37 @@ const CardItem: React.FC<CardItemProps> = ({
                 : product.image
             }
             alt={product.name}
-            className="object-contain  max-h-full transition-transform 
-            duration-300 group-hover:scale-105"
+            className="object-contain max-h-full transition-transform duration-300 group-hover:scale-105"
           />
         </div>
 
-        <p className="mt-3 text-xl text-center font-semibold text-black line-clamp-2 min-h-[3.5rem]">
+        <p className="mt-3 text-base text-center font-semibold text-gray-800 tracking-tight line-clamp-2 min-h-[3.5rem]">
           {product.name}
         </p>
 
-        <div className="text-base font-bold mt-2">
+        <div className="text-center mt-2">
           {isSoldOut ? (
-            <span className="text-gray-400">Hết Hàng</span>
+            <span className="text-sm font-medium text-gray-400 italic">
+              Hết hàng
+            </span>
           ) : (
-            <span className="text-black font-semibold text-lg">
+            <span className="text-lg font-bold text-gray-900">
               {product.price.toLocaleString()}₫
             </span>
           )}
         </div>
 
-        <div className="flex justify-end items-center mt-3">
+        <div className="flex justify-end items-center mt-auto pt-4">
           <div
             title={isSoldOut ? "Sản phẩm đã hết hàng" : "Thêm vào giỏ hàng"}
-            className={`p-2 rounded-full ${
+            className={`p-2 rounded-full shadow ${
               isSoldOut
-                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                : "bg-orange-100 text-orange-600 hover:bg-orange-200 hover:text-orange-700 cursor-pointer"
+                ? "bg-gray-100 text-gray-300 cursor-not-allowed"
+                : "bg-gray-900 text-white hover:bg-gray-800 hover:text-white cursor-pointer"
             } transition`}
             onClick={() => !isSoldOut && setShowModal(true)}
           >
-            <ShoppingBag className="w-5 h-5 " />
+            <ShoppingBag className="w-5 h-5" />
           </div>
         </div>
       </div>

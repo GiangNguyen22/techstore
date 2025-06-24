@@ -21,8 +21,7 @@ import HomeStore from "../pages/Store/HomeStore";
 import AdminChat from "../components/Admin/AdminChat";
 import AdminChatPage from "../components/Admin/AdminChatPage";
 // ProtectedRoute to check for authentication
-function ProtectedRoute() {}
-
+import ProtectedRoute from "../pages/Detail/ProtectedRouteProps";
 function useRouterElement() {
   const routeElement = useRoutes([
     {
@@ -35,11 +34,19 @@ function useRouterElement() {
     },
     {
       path: "/dashboard",
-      element: <DashBoard />,
+      element: (
+      <ProtectedRoute adminOnly>
+        <DashBoard />
+      </ProtectedRoute>
+    ),
     },
     {
       path: "/dashboard/editProduct",
-      element: <EditProduct />,
+       element: (
+      <ProtectedRoute adminOnly>
+        <EditProduct />
+      </ProtectedRoute>
+    ),
     },
     {
       path: "/category/:id", 

@@ -70,7 +70,7 @@ const EditProduct = () => {
     return <div>Error loading categories: {(categoryError as Error).message}</div>;
 
   return (
-    <div className="flex bg-blue-50 gap-20 h-screen">
+    <div className="flex bg-blue-50 gap-20 h-auto">
       <Sidebar />
       <div className="p-6 w-full">
         <ProductModal

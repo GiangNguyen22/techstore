@@ -1,6 +1,6 @@
 // ... (các import như cũ)
 import React, { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FiSearch, FiUser } from "react-icons/fi";
 import { FaShoppingBag, FaBars } from "react-icons/fa";
 import HeaderTop from "./component/HeaderTop";
@@ -8,7 +8,7 @@ import HeaderBot from "./component/HeaderBot";
 import { getACart } from "../../../api/cart";
 import { getCategories } from "../../../api/categories";
 import InputSearch from "../InputSearch";
-
+import { Navigate } from "react-router-dom";
 interface Category {
   id: number;
   name: string;
@@ -28,7 +28,7 @@ const Header = () => {
   const accountRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const botMenuRef = useRef<HTMLDivElement>(null);
-
+  const navigate = useNavigate();
   useEffect(() => {
     (async () => {
       try {
@@ -123,7 +123,10 @@ const Header = () => {
     setAccountOpen(false);
 
     // 🔄 Reload trang để cập nhật lại mọi thứ
+    navigate("/");
     window.location.reload();
+    
+    
   };
 
   const HeaderContent = ({ isScrolled = false }: { isScrolled?: boolean }) => (

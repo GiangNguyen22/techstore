@@ -6,7 +6,7 @@ import { Product, ProductVariant } from "../../types/Product.type";
 import { useNotification } from "../../pages/Detail/NotificationProvider";
 import Header from "../../components/commom/Header/Header";
 import FooterComponent from "../../components/commom/FooterComponent";
-
+import { deleteCart } from "../../api/cart";
 type OrderItem = {
   productId: number;
   productVariantId: number;
@@ -25,11 +25,7 @@ const OrderPage: React.FC = () => {
   const { showMessage } = useNotification();
 
   const state = location.state as OrderItem[] | OrderItem | undefined;
-  const orderItems: OrderItem[] = Array.isArray(state)
-    ? state
-    : state
-    ? [state]
-    : [];
+  const { orderItems = [], cartItemIds = [] } = location.state || {};
 
   const [productInfos, setProductInfos] = useState<ProductInfo[]>([]);
   const [address, setAddress] = useState("");
@@ -46,7 +42,7 @@ const OrderPage: React.FC = () => {
     }
 
     Promise.all(
-      orderItems.map(async (item) => {
+      orderItems.map(async (item: any) => {
         const product = await getProductById(item.productId);
         const variant = product.variants.find(
           (v: any) => v.id === item.productVariantId
@@ -107,8 +103,25 @@ const OrderPage: React.FC = () => {
     try {
       setLoading(true);
       const res = await createOrder(orderRequest);
+
+      if (Array.isArray(cartItemIds)) {
+        for (const id of cartItemIds) {
+          try {
+            await deleteCart(id);
+          } catch (err) {
+            console.error("Xoá giỏ hàng thất bại:", err);
+          }
+        }
+
+        window.dispatchEvent(new CustomEvent("cart-updated", { detail: [] }));
+      }
       showMessage("Đặt hàng thành công!", "success");
-      window.location.href = res.data.paymentUrl;
+      localStorage.removeItem("cartItems");
+      if (paymentMethod === "VNPAY" && res.data.paymentUrl) {
+        window.location.href = res.data.paymentUrl;
+      } else {
+        navigate("/payment-success");
+      }
     } catch (error) {
       console.error(error);
       showMessage("Đặt hàng thất bại, vui lòng thử lại.", "error");

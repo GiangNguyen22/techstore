@@ -5,10 +5,17 @@ import ButtonComponent from "../../components/ui/ButtonComponent";
 import InputComponent from "../../components/ui/InputComponent";
 import { Link, useNavigate } from "react-router-dom";
 import { login } from "../../api/auth"; // Thêm dòng này
+import { useEffect } from "react";
 
 const LoginComponent = () => {
   const navigate = useNavigate();
 
+   useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      navigate("/", { replace: true }); // Chuyển hướng và thay thế trang hiện tại trong history
+    }
+  }, []);
   const formik = useFormik({
     initialValues: {
       email: "",
