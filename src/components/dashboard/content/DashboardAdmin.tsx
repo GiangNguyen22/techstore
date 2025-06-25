@@ -7,6 +7,7 @@ import TransactionsTable from '../TransactionsTable';
 import TopProducts from '../TopProducts';
 import {getPaymentTotal} from '../../../api/payment';
 import { getOrdersReport } from '../../../api/orders';
+import { getPendingCancelledOrders } from '../../../api/orders';
 import { ShoppingCart, DollarSign, AlertCircle } from 'lucide-react';
 
 interface Stat {
@@ -32,6 +33,14 @@ interface OrderReport {
  previousTotalOrders: number;
   percent: number;
 }
+
+
+
+interface Pending{
+  pending:number;
+    cancel:number;
+}
+
 
 const DashboardContent = () => {
   const [saleData, setSaleData] = useState<SaleReport | null>(null);
@@ -73,6 +82,26 @@ useEffect(() => {
   fetchOrdersReport();
 }, []);
 
+const [pendingData, setPendingData] = useState<Pending | null>(null);
+useEffect(() => {
+  const fetchPendingCancelledOrders = async () => {
+    try {
+      const data: Pending = await getPendingCancelledOrders();
+      setPendingData({
+        pending: data.pending || 0,
+        cancel: data.cancel || 0,
+      });
+      console.log("Pending & Cancelled Orders:", data);
+     
+    } catch (error) {
+      console.error("Error fetching pending cancelled orders:", error);
+      setPendingData(null);
+    }
+  };
+  fetchPendingCancelledOrders();
+}, []);
+ console.log("pending log: ", pendingData);
+
 
   if (loading) return <p className="text-gray-500">Loading dashboard...</p>;
 if (!saleData) {
@@ -98,9 +127,9 @@ if (!saleData) {
         />
         <StatsCard
           title="Pending & Canceled"
-          value="509"
+          value={(pendingData?.pending ?? 0).toLocaleString()}
           subtitle="Last 7 days"
-          subvalue="User 1000"
+          subvalue={(pendingData?.cancel ?? 0).toLocaleString()}
         />
       </div>
 

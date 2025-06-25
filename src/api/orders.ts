@@ -4,6 +4,11 @@ interface OrderReport {
  previousTotalOrders: number;
   percent: number;
 }
+interface Pending{
+  pending:number;
+    cancel:number;
+}
+
 const getOrders = async (status?: string): Promise<any[]> => {
     try {
         const res = await instance.get(`/order`)
@@ -34,8 +39,19 @@ const getOrdersbyId = async(id: number): Promise<any> => {
         throw error;
     }
 };
+
+const getPendingCancelledOrders = async (status?:string): Promise<Pending> => {
+    try {
+        const res = await instance.get(`/order/pending-cancelled`);
+        return res.data;
+    } catch (error) {
+        console.error("Error fetching pending cancelled orders:", error);
+        throw error;
+    }
+};
 export {
     getOrders,
     getOrdersReport,
     getOrdersbyId,
+    getPendingCancelledOrders
 }
