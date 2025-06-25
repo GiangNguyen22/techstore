@@ -15,6 +15,8 @@ interface CartItemProps {
   onQuantityChange: (delta: number) => void;
   onRemove: () => void;
   currentQuantityInCart: (variantId: number) => number;
+  checked?: boolean;
+  onCheckChange?: (checked: boolean) => void;
 }
 
 const CartItem: React.FC<CartItemProps> = ({
@@ -22,20 +24,32 @@ const CartItem: React.FC<CartItemProps> = ({
   onQuantityChange,
   onRemove,
   currentQuantityInCart,
+   checked = false,
+  onCheckChange = () => {},
 }) => {
-const totalInCart = currentQuantityInCart(item.productVariantId);
-const remaining = Math.max(0, item.stockQuantity - (totalInCart - item.quantity)); 
-const disableIncrease = item.quantity >= remaining;
-// console.log(item);
-const BACKEND_URL = "http://localhost:8080";
+  const totalInCart = currentQuantityInCart(item.productVariantId);
+  const remaining = Math.max(
+    0,
+    item.stockQuantity - (totalInCart - item.quantity)
+  );
+  const disableIncrease = item.quantity >= remaining;
+  // console.log(item);
+  const BACKEND_URL = "http://localhost:8080";
 
   return (
     <div className="grid grid-cols-12 items-center border-b pb-4">
-      <div className="col-span-5 flex gap-4 items-center">
+        <div className="col-span-1 flex justify-center">
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={(e) => onCheckChange(e.target.checked)}
+        />
+      </div>
+      <div className="col-span-4 flex gap-4 items-center">
         <img
-               src={item.image ? BACKEND_URL + item.image : item.image}
+          src={item.image ? BACKEND_URL + item.image : item.image}
           alt={item.name}
-  className="w-36 h-24 object-contain  rounded-md"
+          className="w-36 h-24 object-contain  rounded-md"
         />
         <div>
           <div className="font-semibold">{item.name}</div>
@@ -50,7 +64,7 @@ const BACKEND_URL = "http://localhost:8080";
       <div className="col-span-2 flex justify-center items-center gap-2">
         <button
           onClick={() => onQuantityChange(-1)}
-          className="px-2 py-1 border rounded disabled:opacity-50"
+          className="px-2 py-2 border rounded disabled:opacity-50"
           disabled={item.quantity <= 1}
         >
           <Minus size={16} />

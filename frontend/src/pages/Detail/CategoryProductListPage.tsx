@@ -6,6 +6,9 @@ import { getProducts } from "../../api/products";
 import Header from "../../components/commom/Header/Header";
 import { getACart } from "../../api/cart";
 import { Product } from "../../types/Product.type";
+import { useSelector } from "react-redux";
+import { RootState } from "../../stores/store";
+import UserChatPopup from "../../components/Chat/UserChatPopUp";
 
 const ITEMS_PER_PAGE = 8;
 
@@ -24,6 +27,7 @@ const priceRanges = [
 ];
 
 const CategoryProductListPage: React.FC = () => {
+  const { token, isAdmin, username } = useSelector((state: RootState) => state.auth);
   const { id } = useParams<{ id: string }>();
   const [categoryName, setCategoryName] = useState("");
   const [products, setProducts] = useState<Product[]>([]);
@@ -201,6 +205,9 @@ const CategoryProductListPage: React.FC = () => {
                 ))}
               </div>
             )}
+             {token && !isAdmin && username && (
+        <UserChatPopup authToken={token} username={username} />
+      )}   
 
             {totalPages > 1 && (
               <div className="flex justify-center mt-8 space-x-4">

@@ -1,6 +1,6 @@
 // ... (các import như cũ)
 import React, { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FiSearch, FiUser } from "react-icons/fi";
 import { FaShoppingBag, FaBars } from "react-icons/fa";
 import HeaderTop from "./component/HeaderTop";
@@ -8,7 +8,8 @@ import HeaderBot from "./component/HeaderBot";
 import { getACart } from "../../../api/cart";
 import { getCategories } from "../../../api/categories";
 import InputSearch from "../InputSearch";
-
+import { Navigate } from "react-router-dom";
+import { FaShoppingCart } from "react-icons/fa";
 interface Category {
   id: number;
   name: string;
@@ -28,7 +29,7 @@ const Header = () => {
   const accountRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const botMenuRef = useRef<HTMLDivElement>(null);
-
+  const navigate = useNavigate();
   useEffect(() => {
     (async () => {
       try {
@@ -123,11 +124,12 @@ const Header = () => {
     setAccountOpen(false);
 
     // 🔄 Reload trang để cập nhật lại mọi thứ
+    navigate("/");
     window.location.reload();
   };
 
   const HeaderContent = ({ isScrolled = false }: { isScrolled?: boolean }) => (
-    <div className=" flex items-center justify-between px-40 py-3 shadow-md relative">
+    <div className=" flex items-center justify-between px-40 py-3 shadow-md relative h-28">
       <div className="flex items-center space-x-4">
         {isScrolled && (
           <button
@@ -143,7 +145,8 @@ const Header = () => {
         {isScrolled && menuOpen && (
           <div
             ref={menuRef}
-            className="absolute top-28 left-32 mt-2 w-56 bg-white border border-gray-300 rounded-xl shadow-lg z-50 max-h-64 overflow-y-auto"
+            className="absolute top-28 left-32 mt-2 w-56 bg-white border
+             border-gray-300 rounded-xl shadow-lg z-50 max-h-64 overflow-y-auto"
           >
             {categories.length === 0 ? (
               <p className="p-4 text-gray-500">Đang tải danh mục...</p>
@@ -161,12 +164,11 @@ const Header = () => {
             )}
           </div>
         )}
-        <Link to="/" className="flex items-center">
-          <img
-            src="https://cdn.mykiot.vn/2022/10/1666152047a4cf9554e4097312a1e5262a3f84f5ba.png"
-            alt="Logo"
-            className="h-24"
-          />
+        <Link
+          to="/"
+          className="text-2xl font-bold text-slate-800 tracking-wide"
+        >
+          <span className="text-orange-500">Tech</span>Store
         </Link>
       </div>
 
@@ -191,7 +193,10 @@ const Header = () => {
           </button>
 
           {accountOpen && (
-            <div className="absolute -left-2 mt-2 w-48 bg-white border border-gray-300 rounded-2xl shadow-md z-50 overflow-hidden">
+            <div
+              className="absolute -left-2 mt-2 w-48 bg-white border border-gray-300
+             rounded-2xl shadow-md z-50 overflow-hidden"
+            >
               {isLoggedIn ? (
                 <>
                   <Link
@@ -234,7 +239,7 @@ const Header = () => {
           to="/cart"
           className="relative flex items-center justify-center w-10 h-10 rounded-full border border-gray-300 hover:border-orange-500 hover:bg-orange-500 group transition-colors duration-300"
         >
-          <FaShoppingBag className="text-2xl text-gray-800 group-hover:text-white" />
+          <FaShoppingCart className="text-2xl text-gray-800 group-hover:text-white" />
           {cartCount > 0 && (
             <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
               {cartCount}
@@ -252,9 +257,12 @@ const Header = () => {
       </div>
 
       <div
-        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 bg-white shadow-md border-b border-orange-300 ${
-          showHeader ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-full"
-        }`}
+        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 bg-white
+           shadow-md border-b border-orange-300 ${
+             showHeader
+               ? "opacity-100 translate-y-0"
+               : "opacity-0 -translate-y-full"
+           }`}
       >
         <HeaderContent isScrolled={true} />
       </div>

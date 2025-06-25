@@ -5,11 +5,10 @@ import com.example.techstore.dto.response.TopProductResponse;
 import com.example.techstore.entity.Category;
 import com.example.techstore.entity.Product;
 import com.example.techstore.entity.ProductVariant;
+import com.example.techstore.exceptions.ProductDeleteException;
 import com.example.techstore.exceptions.ResourceNotFoundEx;
 import com.example.techstore.mapper.ProductMapper;
-import com.example.techstore.repository.CategoryRepository;
-import com.example.techstore.repository.ProductRepository;
-import com.example.techstore.repository.ProductVariantRepository;
+import com.example.techstore.repository.*;
 import com.example.techstore.service.ProductService;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +36,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     private ProductMapper productMapper;
+
+    @Autowired
+    private OrderDetailRepository orderDetailRepository;
 
     @Autowired
     private CloudinaryService cloudinaryService;
@@ -208,9 +210,12 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void deleteProduct(Integer id) {
-        if (!productRepository.existsById(id)) {
-            throw new ResourceNotFoundEx("Product not found with id: " + id);
+        Product product = productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundEx("Product not found"));
+
+        if (orderDetailRepository.existsByProduct(product)) {
+            throw new ProductDeleteException("Không thể xóa sản phẩm đã được đặt hàng.");
         }
+
         productRepository.deleteById(id);
     }
 

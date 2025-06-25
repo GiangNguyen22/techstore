@@ -26,10 +26,16 @@ const deleteProduct = async (id: number): Promise<any> => {
   try {
     const res = await instance.delete(`/products/${id}`);
     return res.data;
-  } catch (error) {
-    throw error;
+  } catch (error: any) {
+    // Xử lý lỗi trả về từ backend có chứa message
+    const message =
+      error.response?.data?.message || "Đã xảy ra lỗi khi xóa sản phẩm.";
+    // Có thể log hoặc hiển thị thông báo tại đây
+    console.error("Lỗi xóa sản phẩm:", message);
+    throw new Error(message); // ném lại lỗi có message rõ ràng
   }
 };
+
 
 // Upload thumbnail riêng
 const uploadThumbnail = async (file: File): Promise<any> => {
@@ -65,9 +71,9 @@ const getTopSellingProducts = async (): Promise<any> => {
 
 // Tìm kiếm nâng cao
 const searchProducts = async (keyword: string): Promise<any> => {
-  console.log("Searching keyword:", keyword);
+  // console.log("Searching keyword:", keyword);
   const res = await instance.get(`/products/search?keyword=${encodeURIComponent(keyword)}`);
-  console.log("Response data:", res.data);
+  // console.log("Response data:", res.data);
   return res.data;
 };
 

@@ -24,12 +24,13 @@ import HomeStore from "../pages/Store/HomeStore";
 import AdminChat from "../components/Admin/AdminChat";
 import AdminChatPage from "../components/Admin/AdminChatPage";
 // ProtectedRoute to check for authentication
-function ProtectedRoute() {}
-
+import ProtectedRoute from "../pages/Detail/ProtectedRouteProps";
+import AboutUs from "../components/commom/AboutUs";
+import ContactPage from "../components/commom/ContactPage";
 function useRouterElement() {
   const routeElement = useRoutes([
     {
-      path: "/",
+      path: "/store",
       element: <HomePage />,
     },
     {
@@ -37,23 +38,44 @@ function useRouterElement() {
       element: <Cart />,
     },
     {
-      path: "/dashboard",
-      element: <DashBoard />,
+      path:"/aboutUs",
+      element:<AboutUs/>
     },
+     {
+      path:"/lienhe",
+      element:<ContactPage/>
+    },
+    // {
+    //   path: "/dashboard",
+    //   element: (
+    //   <ProtectedRoute adminOnly>
+    //     <DashBoard />
+    //   </ProtectedRoute>
+    // ),
+    // },
     {
       path: "/dashboard_layout",
-      element: <DashboardLayout />,
+
+      element:(
+         <ProtectedRoute adminOnly>
+         <DashboardLayout />
+         </ProtectedRoute>
+      )
     },
 
 
-    {
-      path: "/dashboard_admin",
-      element: <Dashboard_Admin />,
-    },
-    {
-      path: "/dashboard/editProduct",
-      element: <EditProduct />,
-    },
+    // {
+    //   path: "/dashboard_admin",
+    //   element: <Dashboard_Admin />,
+    // },
+    // {
+    //   path: "/dashboard/editProduct",
+    //    element: (
+    //   <ProtectedRoute adminOnly>
+    //     <EditProduct />
+    //   </ProtectedRoute>
+    // ),
+    // },
     {
       path: "/category/:id", 
       element: <CategoryProductListPage />,
@@ -99,12 +121,16 @@ function useRouterElement() {
       element:<PaymentFail/>
     },
     {
-      path:"/store",
+      path:"/",
       element:<HomeStore/>
     },
     {
       path: "/admin/chat",
-      element: <AdminChat/>
+      element:(
+         <ProtectedRoute adminOnly>
+            <AdminChat/>
+         </ProtectedRoute>
+      ) 
     }
 
   ]);

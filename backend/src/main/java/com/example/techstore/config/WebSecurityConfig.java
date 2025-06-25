@@ -36,7 +36,7 @@ public class WebSecurityConfig {
 
     private static final String[] publicApis = {
             "/api/auth/**",
-            "/api/order"
+            "/api/order/**"
     };
 
     @Bean
@@ -47,7 +47,8 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/category", "/api/products").permitAll()
-                        .requestMatchers("/images/**").permitAll() // 👈 Quan trọng!
+                        .requestMatchers("/images/**").permitAll()
+                        .requestMatchers("/api/products/**").hasRole("ADMIN")
                         .requestMatchers(publicApis).permitAll()
                         .requestMatchers("/api/payment/vnpay-return").permitAll()
                         .requestMatchers("/api/chat/**").permitAll()

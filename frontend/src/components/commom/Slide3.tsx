@@ -20,12 +20,12 @@ const items = [
     image: "https://cdn.mykiot.vn/2021/11/e9f301e515930a3fb54d106868f653d65956bc619a6feabfe3b237477308eb6e.jpg",
   },
   {
-    title: "ĐIỆN THOẠI",
+    title: "SmartPhone",
     desc: "Điện thoại chính hãng",
     image: "https://cdn.mykiot.vn/2021/12/1639379077c4ee1adc869eda39f00b0cd79143eb54.jpg",
   },
   {
-    title: "BÀN GAMING",
+    title: "Gamingtable",
     desc: "Mô tả chi tiết của dịch vụ",
     image: "https://cdn.mykiot.vn/2021/12/1639379848c2f428742b1862f0d0063b9389cec318.jpg",
   },
@@ -35,7 +35,7 @@ const items = [
     image: "https://cdn.mykiot.vn/2021/12/163938036612f9408b03135cb92096ffc8761da671.jpg",
   },
   {
-    title: "PHỤ KIỆN",
+    title: "Accessories",
     desc: "Bàn phím, chuột, tai nghe, quạt tản nhiệt,...",
     image: "https://cdn.mykiot.vn/2021/12/1639380863f8641302485d268a9faf705ee9a71624.jpg",
   },

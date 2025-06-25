@@ -1,21 +1,20 @@
 import { Hand, Plus, Edit, Trash2, Save, X } from "lucide-react";
 import Table from "../../../pages/DashBoard/Table";
-
 import "rc-pagination/assets/index.css";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import {
   getCategories,
   createCategory,
   deleteCategory,
   updateCategory,
 } from "../../../api/categories";
+import { getProducts } from "../../../api/products";
 import { useLocation, useSearchParams } from "react-router-dom";
-import { useEffect, useState } from "react";
-
+import { Link } from "react-router-dom";
 interface Category {
   id: number;
   name: string;
-  products?: number; // Optional product count
+  products?: number; // Tổng stockQuantity của các sản phẩm thuộc category này
 }
 
 const CategoriesContent = () => {
@@ -38,11 +37,32 @@ const CategoriesContent = () => {
     setError(null);
     try {
       const data = await getCategories();
-      // Thêm mock product count nếu API không trả về
-      const categoriesWithProducts = data.map((cat: Category) => ({
-        ...cat,
-        products: cat.products || Math.floor(Math.random() * 100) + 1
-      }));
+
+      // Với mỗi category, gọi getProducts(categoryId) để tính tổng stockQuantity
+      const categoriesWithProducts: Category[] = await Promise.all(
+        data.map(async (cat: Category) => {
+          try {
+            const products = await getProducts(cat.id); // getProducts(categoryId)
+            // Tính tổng stockQuantity từ tất cả các variants của từng sản phẩm
+            const totalStock = products.reduce((sum: number, product: any) => {
+              if (product.variants && Array.isArray(product.variants)) {
+                return (
+                  sum +
+                  product.variants.reduce(
+                    (subSum: number, v: any) => subSum + (v.stockQuantity || 0),
+                    0
+                  )
+                );
+              }
+              return sum;
+            }, 0);
+            return { ...cat, products: totalStock };
+          } catch (e) {
+            // Nếu lỗi khi lấy sản phẩm category nào, vẫn trả về 0
+            return { ...cat, products: 0 };
+          }
+        })
+      );
       setCategories(categoriesWithProducts);
     } catch (err: any) {
       setError("Lỗi khi tải danh sách");
@@ -53,6 +73,7 @@ const CategoriesContent = () => {
 
   useEffect(() => {
     fetchCategories();
+    // eslint-disable-next-line
   }, []);
 
   // Thêm category mới
@@ -246,14 +267,17 @@ const CategoriesContent = () => {
                       {category.name}
                     </h3>
                     <p className="text-sm text-gray-500">
-                      {category.products || 0} products
+                      {category.products || 0} sản phẩm trong kho
                     </p>
                   </div>
                   
                   <div className="flex items-center justify-between">
-                    <button className="text-sm text-blue-500 hover:underline">
+                   <Link
+                      to={`/category/${category.id}`}
+                      className="text-sm text-blue-500 hover:underline"
+                    >
                       View Products
-                    </button>
+                    </Link>
                     
                     <div className="flex gap-2">
                       <button

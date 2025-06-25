@@ -14,6 +14,10 @@ public class RoleService {
         return roleRepository.findByName("ROLE_USER");
     }
 
+    public Role getAdminRole(){
+        return roleRepository.findByName("ROLE_ADMIN");
+    }
+
     public Role createRole(String roleName){
         Role role = Role.builder().name(roleName).build();
         return roleRepository.save(role);

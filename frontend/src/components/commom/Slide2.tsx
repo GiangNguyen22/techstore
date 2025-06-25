@@ -4,68 +4,60 @@ import "swiper/css";
 import "swiper/css/pagination";
 import { Autoplay, Pagination } from "swiper/modules";
 import CardItem from "../../pages/Cart/CardItem";
-import ProductModal from "../../pages/Cart/ProductModal";
 import { getCategories } from "../../api/categories";
 import { getProducts } from "../../api/products";
 import { getACart } from "../../api/cart";
-import { useNotification } from "../../pages/Detail/NotificationProvider";
 import { Product } from "../../types/Product.type";
 
 const Slide2 = () => {
   const swiperRef = useRef<any>(null);
   const [products, setProducts] = useState<Product[]>([]);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [cartItems, setCartItems] = useState<any[]>([]);
-  const { showMessage } = useNotification();
 
+  // Lấy số lượng từng biến thể trong giỏ hàng
   const currentQuantityInCart = (variantId: number) => {
     const item = cartItems.find((i) => i.productVariantId === variantId);
     return item ? item.quantity : 0;
   };
 
-  const refreshCart = async () => {
-    try {
-      const cart = await getACart();
-      setCartItems(cart.items || []);
-    } catch (error) {
-      console.error("Lỗi khi tải giỏ hàng:", error);
-    }
-  };
-
   useEffect(() => {
-    refreshCart();
+    const fetchCart = async () => {
+      try {
+        const cart = await getACart();
+        setCartItems(cart.items || []);
+      } catch (error) {
+        console.error("Lỗi khi tải giỏ hàng:", error);
+      }
+    };
+    fetchCart();
   }, []);
 
   useEffect(() => {
-    const fetchKeyboardProducts = async () => {
+    const fetchCameraProducts = async () => {
       try {
         const categories = await getCategories();
-        const keyboardCategory = categories.find(
+        const cameraCategory = categories.find(
           (cat: any) => cat.name.toLowerCase() === "keyboard"
         );
-
-        if (keyboardCategory) {
-          const productList = await getProducts(keyboardCategory.id);
+        if (cameraCategory) {
+          const productList = await getProducts(cameraCategory.id);
           setProducts(productList.slice(0, 10));
-        } else {
-          console.warn("Không tìm thấy category tên 'Keyboard'");
         }
       } catch (error) {
-        console.error("Lỗi khi tải sản phẩm Keyboard:", error);
+        console.error("Lỗi khi tải sản phẩm keyboard:", error);
       }
     };
-
-    fetchKeyboardProducts();
+    fetchCameraProducts();
   }, []);
 
   return (
-    <div className="relative max-w-[1400px] mx-auto py-6">
+    <div className="relative max-w-[1200px] mx-auto py-6">
       <Swiper
         modules={[Pagination, Autoplay]}
         spaceBetween={20}
         slidesPerView={4}
         autoplay={{
-          delay: 3000,
+          delay: 4000,
           disableOnInteraction: false,
         }}
         onSwiper={(swiper: any) => (swiperRef.current = swiper)}
@@ -85,30 +77,15 @@ const Slide2 = () => {
             <CardItem
               product={product}
               currentQuantityInCart={currentQuantityInCart}
-              refreshCart={refreshCart}
-              onClickAddToCart={() => setSelectedProduct(product)}
+              refreshCart={async () => {
+                const cart = await getACart();
+                setCartItems(cart.items || []);
+              }}
             />
           </SwiperSlide>
         ))}
       </Swiper>
-
       <div className="custom-swiper-pagination flex justify-center mt-4" />
-
-      {selectedProduct && (
-        <ProductModal
-          product={selectedProduct}
-          onClose={() => setSelectedProduct(null)}
-          onConfirm={async (variantId, quantity) => {
-            await refreshCart();
-            setSelectedProduct(null);
-            showMessage(
-              `Đã thêm ${quantity} sản phẩm vào giỏ hàng!`,
-              "success"
-            );
-          }}
-          currentQuantityInCart={currentQuantityInCart}
-        />
-      )}
     </div>
   );
 };

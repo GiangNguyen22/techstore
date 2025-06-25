@@ -5,7 +5,10 @@ import { addAProductCart, getACart } from "../../api/cart";
 import { useNotification } from "../../pages/Detail/NotificationProvider";
 import { Product } from "../../types/Product.type";
 import { useNavigate } from "react-router-dom";
-
+import { MdShoppingCart } from "react-icons/md";
+import { BsCart3 } from "react-icons/bs";
+import { IoCartOutline } from "react-icons/io5";
+import { FaShoppingBag } from "react-icons/fa";
 interface CardItemProps {
   product: Product;
   currentQuantityInCart: (variantId: number) => number;
@@ -72,11 +75,16 @@ const CardItem: React.FC<CardItemProps> = ({
 
   return (
     <>
-      <div className="bg-white border border-orange-100 rounded-2xl shadow-md hover:shadow-lg p-3 flex flex-col transition-all duration-300 
-      hover:-translate-y-2 group relative h-[390px]">
+      <div
+        className="flex flex-col bg-white rounded-2xl shadow-sm 
+        hover:shadow-xl hover:-translate-y-2 duration-300  h-[370px] 
+        group relative font-sans transition-all border p-3"
+      >
+        {/* Image */}
         <div
-          className="h-[230px] flex items-center justify-center overflow-hidden 
-          rounded-xl cursor-pointer  "
+          className="w-full h-[200px] rounded-xl overflow-hidden 
+  bg-gray-50 border mb-3 flex items-center justify-center
+  transition-all duration-300   cursor-pointer"
           onClick={() => navigate(`/product/${product.id}`)}
         >
           <img
@@ -86,38 +94,60 @@ const CardItem: React.FC<CardItemProps> = ({
                 : product.image
             }
             alt={product.name}
-            className="object-contain  max-h-full transition-transform 
-            duration-300 group-hover:scale-105"
+            className="block w-full h-full object-cover
+ transition-transform duration-300"
           />
         </div>
 
-        <p className="mt-3 text-xl text-center font-semibold text-black line-clamp-2 min-h-[3.5rem]">
+        {/* Product Name */}
+        <p
+          className="text-base text-left font-bold text-black tracking-tight line-clamp-2
+          min-h-[33px] 
+          transition-colors duration-300 group-hover:text-orange-600"
+        >
           {product.name}
         </p>
 
-        <div className="text-base font-bold mt-2">
+        {/* Price or Sold out */}
+        <div className="text-left min-h-[20px] mb-4">
           {isSoldOut ? (
-            <span className="text-gray-400">Hết Hàng</span>
+            <span className="text-sm font-medium text-gray-400 italic">
+              Hết hàng
+            </span>
           ) : (
-            <span className="text-black font-semibold text-lg">
-              {product.price.toLocaleString()}₫
+            <span
+              className="text-lg font-semibold 
+             group-hover:text-orange-600 transition-colors duration-300"
+            >
+              {product.price.toLocaleString()} VND
             </span>
           )}
         </div>
 
-        <div className="flex justify-end items-center mt-3">
-          <div
+        {/* Add to cart button */}
+        <div className="flex justify-center items-center ">
+          <button
+            type="button"
             title={isSoldOut ? "Sản phẩm đã hết hàng" : "Thêm vào giỏ hàng"}
-            className={`p-2 rounded-full ${
-              isSoldOut
-                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                : "bg-orange-100 text-orange-600 hover:bg-orange-200 hover:text-orange-700 cursor-pointer"
-            } transition`}
+            className={`p-2 rounded-full shadow transition 
+              ${
+                isSoldOut
+                  ? "bg-gray-100 text-gray-300 cursor-not-allowed"
+                  : "bg-orange-500 text-white hover:bg-orange-600 active:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-200 cursor-pointer"
+              }`}
+            disabled={isSoldOut}
             onClick={() => !isSoldOut && setShowModal(true)}
+            style={{ transition: "transform 0.2s" }}
           >
-            <ShoppingBag className="w-5 h-5 " />
-          </div>
+            <FaShoppingBag className="w-5 h-5" />
+          </button>
         </div>
+        {/* Hiệu ứng ripple cho nút nếu thích: */}
+        <style>
+          {`
+            button:active { transform: scale(0.92); }
+          `}
+        </style>
       </div>
 
       {showModal && (

@@ -2,6 +2,7 @@ package com.example.techstore.service.impl;
 
 import com.example.techstore.dto.CartDto;
 import com.example.techstore.dto.OrderDetailDto;
+import com.example.techstore.dto.request.OrderDetailRequest;
 import com.example.techstore.dto.request.OrderRequest;
 import com.example.techstore.dto.response.OrderResponse;
 import com.example.techstore.dto.response.PendingAndCanceledOrderResponse;
@@ -27,7 +28,9 @@ import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderService {
@@ -45,10 +48,11 @@ public class OrderService {
     private CartRepository cartRepository;
     @Autowired
     private CartServiceImpl cartService;
+    @Autowired
+    private ProductRepository productRepository;
 
 
-
-//    @Transactional
+    //    @Transactional
 //    public OrderResponse createOrder(OrderRequest request, Principal principal, HttpServletRequest httpServletRequest) throws Exception {
 //        User user = (User) userDetailsService.loadUserByUsername(principal.getName());
 //        if(request.getAddress()==null){
@@ -140,8 +144,10 @@ public OrderResponse createOrder(OrderRequest request, Principal principal, Http
             throw new RuntimeException("Not enough stock for variant id: " + variant.getId());
         }
 
-        // Giảm tồn kho biến thể
+        // Giảm tồn kho biến thể và Product
+        product.setStockQuantity(product.getStockQuantity() - orderDetailRequest.getQuantity());
         variant.setStockQuantity(variant.getStockQuantity() - orderDetailRequest.getQuantity());
+        productRepository.save(product);
         productService.saveProductVariant(variant);
 
         BigDecimal itemTotal = product.getPrice().multiply(BigDecimal.valueOf(orderDetailRequest.getQuantity()));
@@ -190,7 +196,9 @@ public OrderResponse createOrder(OrderRequest request, Principal principal, Http
         orderResponse.setPaymentMethod(PaymentMethod.VNPAY);
     }
 
-    removeOrder(order.getUser().getId());
+    //Lấy variantId cua các item trong order
+    List<Integer> vatIds = request.getOrderDetailRequests().stream().map(OrderDetailRequest::getProductVariantId).toList();
+    removeOrder(order.getUser().getId(), vatIds);
 
     return orderResponse;
 }
@@ -211,14 +219,25 @@ public OrderResponse createOrder(OrderRequest request, Principal principal, Http
     }
 
 
-    public void removeOrder(Integer userId) {
+    //Xóa product theo productVariantId mà người dùng chọn
+    public void removeOrder(Integer userId, List<Integer> variantIdToRemove) {
         Cart cart = cartRepository.findByUserId(userId).orElseThrow(() -> new ResourceNotFoundEx("Cart not found!"));
-        cartRepository.delete(cart);
+        Iterator<CartItems> iterator = cart.getItems().iterator();
+        while (iterator.hasNext()) {
+            CartItems item = iterator.next();
+            if (variantIdToRemove.contains(item.getProductVariant().getId())) {
+                iterator.remove(); // ✅ Cách chuẩn Hibernate xử lý orphanRemoval
+            }
+        }
+        cartRepository.save(cart);
+
+        cartRepository.save(cart);
         //Trả lại cart Dto
     }
 
     private static OrderDetailDto getOrderDetailDto(Orders order, OrderDetails orderDetail) {
         OrderDetailDto orderDetailDto = new OrderDetailDto();
+        orderDetailDto.setCustomerName(order.getUser().getName());
         orderDetailDto.setId(order.getId());
         orderDetailDto.setOrderDate(order.getOrderDate());
         orderDetailDto.setOrderStatus(order.getStatus());
