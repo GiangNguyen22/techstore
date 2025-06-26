@@ -21,6 +21,7 @@ useEffect(() => {
   const fetchTransactions = async () => {
     try {
       const response = await getTransactions();
+      console.log('Fetched transactions:', response); // Debug log
       const mappedTransactions = response.map((tx: any): Transaction => ({
         id: tx.paymentId.toString(),
         customer: tx.customerName,

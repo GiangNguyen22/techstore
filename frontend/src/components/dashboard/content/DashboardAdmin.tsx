@@ -6,6 +6,10 @@ import SalesByCountry from '../SalesByCountry';
 import TransactionsTable from '../TransactionsTable';
 import TopProducts from '../TopProducts';
 import {getPaymentTotal} from '../../../api/payment';
+import { getOrdersReport } from '../../../api/orders';
+import { getPendingCancelledOrders } from '../../../api/orders';
+import { ShoppingCart, DollarSign, AlertCircle } from 'lucide-react';
+
 interface Stat {
   title: string;
   value: string;
@@ -24,6 +28,19 @@ interface RawSaleReport {
   previousSale: number;
   increaseSale: number;
 }
+interface OrderReport {
+  totalOrders: number;
+ previousTotalOrders: number;
+  percent: number;
+}
+
+
+
+interface Pending{
+  pending:number;
+    cancel:number;
+}
+
 
 const DashboardContent = () => {
   const [saleData, setSaleData] = useState<SaleReport | null>(null);
@@ -45,6 +62,47 @@ const DashboardContent = () => {
       });
   }, []);
   console.log(saleData);
+
+const [orderData, setOrderData] = useState<OrderReport | null>(null);
+
+useEffect(() => {
+  const fetchOrdersReport = async () => {
+    try {
+      const data: OrderReport = await getOrdersReport();
+      setOrderData({
+        totalOrders: data.totalOrders || 0,
+        previousTotalOrders: data.previousTotalOrders || 0,
+        percent: data.percent || 0,
+      });
+    } catch (error) {
+      console.error("Error fetching orders report:", error);
+      setOrderData(null);
+    }
+  };
+  fetchOrdersReport();
+}, []);
+
+const [pendingData, setPendingData] = useState<Pending | null>(null);
+useEffect(() => {
+  const fetchPendingCancelledOrders = async () => {
+    try {
+      const data: Pending = await getPendingCancelledOrders();
+      setPendingData({
+        pending: data.pending || 0,
+        cancel: data.cancel || 0,
+      });
+      console.log("Pending & Cancelled Orders:", data);
+     
+    } catch (error) {
+      console.error("Error fetching pending cancelled orders:", error);
+      setPendingData(null);
+    }
+  };
+  fetchPendingCancelledOrders();
+}, []);
+ console.log("pending log: ", pendingData);
+
+
   if (loading) return <p className="text-gray-500">Loading dashboard...</p>;
 if (!saleData) {
   return <p>Loading...</p>;
@@ -55,23 +113,23 @@ if (!saleData) {
       <div className="grid grid-cols-3 gap-6 mb-6">
         <StatsCard
           title="Total Sales"
-          value={`$${saleData.totalSale.toLocaleString()}`}
+          value={`${saleData.totalSale.toLocaleString()}`}
           subtitle="Last 7 days"
           subvalue="Sales"
           percentage={`↑ ${saleData.increaseSale}%`}
         />
         <StatsCard
           title="Total Orders"
-          value="10.7K"
-          badge="2000.23"
+          value={`${orderData?.totalOrders.toLocaleString()}`}
+          //badge="2000.23"
           subvalue="Orders"
-          percentage="↑ 14.4%"
+          percentage={`↑ ${orderData?.percent}%`}
         />
         <StatsCard
           title="Pending & Canceled"
-          value="509"
+          value={(pendingData?.pending ?? 0).toLocaleString()}
           subtitle="Last 7 days"
-          subvalue="User 1000"
+          subvalue={(pendingData?.cancel ?? 0).toLocaleString()}
         />
       </div>
 
