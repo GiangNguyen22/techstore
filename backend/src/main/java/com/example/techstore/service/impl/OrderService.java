@@ -226,18 +226,43 @@ public OrderResponse createOrder(OrderRequest request, Principal principal, Http
     }
 
 
+//    public void cancelOrder(Integer id, Principal principal) {
+//        User user = (User) userDetailsService.loadUserByUsername(principal.getName());
+//        Orders order = orderRepository.findById(id).orElseThrow(()-> new ResourceNotFoundEx("Order not found"));
+//
+//        if( order.getUser().getId().equals(user.getId())
+//               && (order.getStatus().equals(OrderStatus.pending) ||
+//               order.getStatus().equals(OrderStatus.confirmed))){
+//            order.setStatus(OrderStatus.cancelled);
+//            orderRepository.save(order);
+//        }else{
+//            throw new RuntimeException("Invalid request");
+//        }
+//    }
+
+    @Transactional
     public void cancelOrder(Integer id, Principal principal) {
         User user = (User) userDetailsService.loadUserByUsername(principal.getName());
-        Orders order = orderRepository.findById(id).orElseThrow(()-> new ResourceNotFoundEx("Order not found"));
+        Orders order = orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundEx("Order not found"));
 
-        if( order.getUser().getId().equals(user.getId())
-               && (order.getStatus().equals(OrderStatus.pending) || order.getStatus().equals(OrderStatus.confirmed))){
+        if (order.getUser().getId().equals(user.getId())
+                && (order.getStatus().equals(OrderStatus.pending) || order.getStatus().equals(OrderStatus.confirmed))) {
+
+            for (OrderDetails detail : order.getOrderDetailsList()) {
+                ProductVariant variant = productService.fetchProductVariantById(detail.getProductVariantId());
+                variant.setStockQuantity(variant.getStockQuantity() + detail.getQuantity());
+                productService.saveProductVariant(variant);
+            }
+
             order.setStatus(OrderStatus.cancelled);
             orderRepository.save(order);
-        }else{
+        } else {
             throw new RuntimeException("Invalid request");
         }
     }
+
+
+
 
     public List<OrderDetailDto> getAllOrder() {
         List<Orders> orders = orderRepository.findAll();

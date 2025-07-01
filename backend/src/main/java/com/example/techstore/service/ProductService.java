@@ -4,6 +4,7 @@ import com.example.techstore.dto.ProductDto;
 import com.example.techstore.dto.response.TopProductResponse;
 import com.example.techstore.entity.Product;
 import com.example.techstore.entity.ProductVariant;
+import com.example.techstore.exceptions.ResourceNotFoundEx;
 import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,7 +33,7 @@ public interface ProductService{
     List<Product> filterByPrice(Double minPrice, Double maxPrice);
 
     List<TopProductResponse> getTopProducts();
-    ProductVariant fetchProductVariantById(int variantId) throws Exception;
+    ProductVariant fetchProductVariantById(int variantId) throws ResourceNotFoundEx;
     ProductVariant saveProductVariant(ProductVariant variant);
 
 //    List<ProductDto> findProductByCategory(Integer categoryId);

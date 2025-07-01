@@ -112,10 +112,12 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductVariant fetchProductVariantById(int variantId) throws Exception {
+    public ProductVariant fetchProductVariantById(int variantId) throws ResourceNotFoundEx {
         return productVariantRepository.findById(variantId)
                 .orElseThrow(() -> new ResourceNotFoundEx("Product variant not found with id: " + variantId));
     }
+
+
 
     @Override
     public ProductVariant saveProductVariant(ProductVariant variant) {
