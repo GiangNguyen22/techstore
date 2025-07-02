@@ -11,7 +11,7 @@ interface Message {
   date?: string;
 }
 
-const socket: Socket = io("http://localhost:3000"); // ⚠️ nhớ thay bằng URL thực tế
+const socket: Socket = io("http://192.168.119.146:3000"); // ⚠️ nhớ thay bằng URL thực tế
 
 const AdminChatPage: React.FC = () => {
   const [showChat, setShowChat] = useState(true);

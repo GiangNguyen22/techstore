@@ -77,7 +77,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
     if (totalQuantity > selectedVariant.stockQuantity) {
       showMessage(
         "Số lượng trong giỏ sẽ vượt quá số lượng tồn kho. Vui lòng giảm số lượng.",
-        "success"
+        "error"
       );
       return;
     }
@@ -91,13 +91,18 @@ const ProductModal: React.FC<ProductModalProps> = ({
 
     // Chuyển sang trang /order với dữ liệu biến thể và số lượng đã chọn,
     // có thể truyền state hoặc query param để trang order lấy và hiện thông tin
-    navigate("/order", {
-      state: {
+   navigate("/order", {
+  state: {
+    orderItems: [
+      {
         productId: product.id,
         productVariantId: selectedVariant.id,
         quantity,
       },
-    });
+    ],
+    cartItemIds: [],
+  },
+});
     onClose();
   };
 
@@ -123,7 +128,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
         {variant.stockQuantity === 0 ? " (Hết hàng)" : ""}
       </button>
     )) || null;
-  const BACKEND_URL = "http://192.168.119.146:8080";
+  const BACKEND_URL = "http://localhost:8080";
 
   return ReactDOM.createPortal(
     <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center px-4">

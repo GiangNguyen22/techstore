@@ -92,7 +92,7 @@ const { unreadCount, resetUnread, setActiveChatUser } = useAdminChat();
   // Lấy danh sách client đã nhắn với admin
   const fetchClients = useCallback(() => {
     if (!token) return;
-    fetch("http://localhost:8080/api/chat/users-chatted-with-admin", {
+    fetch("http://192.168.119.146:8080/api/chat/users-chatted-with-admin", {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => (res.ok && res.status !== 204 ? res.json() : []))
@@ -105,7 +105,7 @@ const { unreadCount, resetUnread, setActiveChatUser } = useAdminChat();
     (client: string) => {
       if (!token || !client) return;
       setIsLoadingHistory(true);
-      fetch(`http://localhost:8080/api/chat/history/admin/${client}`, {
+      fetch(`http://192.168.119.146:8080/api/chat/history/admin/${client}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
         .then((res) => (res.ok && res.status !== 204 ? res.json() : []))
@@ -129,7 +129,7 @@ const { unreadCount, resetUnread, setActiveChatUser } = useAdminChat();
   }, [fetchClients]);
 
   useEffect(() => {
-    const socket = new SockJS("http://localhost:8080/ws");
+    const socket = new SockJS("http://192.168.119.146:8080/ws");
     const client = new Client({
       webSocketFactory: () => socket,
       onConnect: () => {

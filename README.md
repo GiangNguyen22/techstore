@@ -17,11 +17,11 @@ Các thành phần của trang nằm trong `components`
 
 ## Các trang liên kết
 
-http://localhost:3000/dashboard
+http://192.168.119.146:3000/dashboard
 ![thẻ alt của ảnh](./public/dashboard.png)
-http://localhost:3000/login
+http://192.168.119.146:3000/login
 ![thẻ alt của ảnh](./public/login.png)
-http://localhost:3000/register
+http://192.168.119.146:3000/register
 ![thẻ alt của ảnh](./public/register.png)
 
 ## Categories

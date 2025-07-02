@@ -62,7 +62,7 @@ const getAllCarts = async (): Promise<any> => {
 //     }
 
 //     // Nếu token còn hạn, tiếp tục thực hiện yêu cầu API
-//     const response = await axios.get('http://localhost:8080/api/carts/users/cart', {
+//     const response = await axios.get('http://192.168.119.146:8080/api/carts/users/cart', {
 //       headers: {
 //         Authorization: `Bearer ${accessToken}`, // Gửi token trong header
 //       },

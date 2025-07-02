@@ -26,7 +26,7 @@ const UserChatPopup: React.FC<UserChatPopupProps> = ({
     const fetchHistory = async () => {
       try {
         const res = await fetch(
-          `http://localhost:8080/api/chat/history/${username}`,
+          `http://192.168.119.146:8080/api/chat/history/${username}`,
           {
             headers: {
               Authorization: `Bearer ${authToken}`,
@@ -56,7 +56,7 @@ const UserChatPopup: React.FC<UserChatPopupProps> = ({
 
     fetchHistory();
 
-    const socket = new SockJS("http://localhost:8080/ws");
+    const socket = new SockJS("http://192.168.119.146:8080/ws");
     const client = new Client({
       webSocketFactory: () => socket,
       onConnect: () => {

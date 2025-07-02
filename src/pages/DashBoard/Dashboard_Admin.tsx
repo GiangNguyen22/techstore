@@ -1,9 +1,4 @@
-import { useSelector } from "react-redux";
-import { RootState } from "../../stores/store";
-import Dialog from "./Dialog";
-import Main from "./Main";
-import Sidebar from "./Sidebar";
-import { ToastContainer } from "react-toastify";
+
 import "react-toastify/dist/ReactToastify.css";
 import React, { useState } from 'react';
 import { LucideIcon } from 'lucide-react';
@@ -83,21 +78,7 @@ const [activeMenu, setActiveMenu] = useState('Dashboard_Admin');
     { id: '#5412', customerId: '#5412', date: '01 Oct 11:29 am', status: 'Pending', amount: '$557', statusColor: 'text-yellow-600' }
   ];
 
-//   const isOpenDialog = useSelector(
-//     (state: RootState) => state.dialog.isOpenDialog
-//   );
 
-//   return (
-//     <div className="h-screen">
-//       <ToastContainer autoClose={2000} />
-//       {isOpenDialog && <Dialog />}
-//       <div className="flex bg-blue-50  gap-20 w-full h-full">
-//         <Sidebar />
-//         <Main />
-//       </div>
-//     </div>
-//   );
-// };
 const MenuItem: React.FC<MenuItemProps> = ({ icon: Icon, label, active = false, badge }) => (
     <div className={`flex items-center gap-3 px-4 py-2.5 rounded-lg cursor-pointer transition-colors ${
       active ? 'bg-green-500 text-white' : 'text-gray-600 hover:bg-gray-100'

@@ -53,7 +53,7 @@ const FooterComponent = () => {
 
         {/* Mạng xã hội & đăng ký email */}
         <div className="w-full sm:w-1/2 md:w-1/4">
-          <h3 className="text-lg font-bold mb-4">THEO DÕI Xiaomi</h3>
+          <h3 className="text-lg font-bold mb-4">THEO DÕI</h3>
           <div className="flex space-x-4 text-xl mb-6">
             <FaFacebookF className="hover:text-orange-500 cursor-pointer" />
             <FaTiktok className="hover:text-orange-500 cursor-pointer" />

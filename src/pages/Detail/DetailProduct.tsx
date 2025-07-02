@@ -85,11 +85,16 @@ const DetailProduct: React.FC = () => {
       return;
     }
     navigate("/order", {
-      state: {
+       state: {
+    orderItems: [
+      {
         productId: product!.id,
         productVariantId: selectedVariant.id,
         quantity,
       },
+    ],
+    cartItemIds: [], 
+  },
     });
   };
 

@@ -13,30 +13,24 @@ import FeaturedProductSection from "./FeaturedProductSection";
 import Header from "../../components/commom/Header/Header";
 import SmartPhoneSlide from "./SmartPhoneSlide";
 import FooterComponent from "../../components/commom/FooterComponent";
+import AccessoriesBanner from "./AccessoriesBanner";
+import { useSelector } from "react-redux";
+import { RootState } from "../../stores/store";
+import UserChatPopup from "../../components/Chat/UserChatPopUp";
 const HomeStore = () => {
-  const swiperRef = useRef<SwiperCore | null>(null);
-  const [isBeginning, setIsBeginning] = useState(true);
-  const [isEnd, setIsEnd] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
-  const handlePrev = () => {
-    if (swiperRef.current) {
-      swiperRef.current.slidePrev();
-    }
-  };
-
-  const handleNext = () => {
-    if (swiperRef.current) {
-      swiperRef.current.slideNext();
-    }
-  };
-
+  const { token, isAdmin, username } = useSelector((state: RootState) => state.auth);
   return (
   <div className="bg-white w-full h-auto overflow-hidden">
       <Header/>
       <ReusableCarousel />
       <FeaturedProductSection/>
       <SmartPhoneSlide/>
+      <AccessoriesBanner/>
+      {token && !isAdmin && username && (
+        <UserChatPopup authToken={token} username={username} />
+      )}   
       <FooterComponent/>
+      
     </div>
   );
 };

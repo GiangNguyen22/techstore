@@ -70,19 +70,11 @@ const LaptopProductList: React.FC = () => {
   };
 
   return (
-    <div className="my-10 px-6 md:px-12">
+    <div className="my-10 px-6 md:px-10">
       <div className="flex justify-between items-center mb-8">
         <h2 className="text-3xl font-extrabold text-gradient bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 bg-clip-text text-transparent">
           LAPTOP
         </h2>
-        {categoryId && (
-          <a
-            href={`/category/${categoryId}`}
-            className="text-indigo-600 hover:text-indigo-800 font-semibold text-sm uppercase tracking-wide transition-colors duration-300"
-          >
-            XEM TẤT CẢ &rarr;
-          </a>
-        )}
       </div>
 
       {loading ? (
@@ -94,7 +86,7 @@ const LaptopProductList: React.FC = () => {
           Không có sản phẩm nào trong danh mục Laptop.
         </p>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {products.slice(0, 8).map((product) => (
             <CardItem
               key={product.id}
@@ -106,6 +98,19 @@ const LaptopProductList: React.FC = () => {
           ))}
         </div>
       )}
+      {categoryId && products.length > 0 && (
+        <div className="flex justify-center mt-10 w-full">
+          <a
+            href={`/category/${categoryId}`}
+            className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white hover:from-indigo-600 hover:to-pink-600 font-bold text-base tracking-widest shadow-lg transition-all duration-300 group"
+          >
+            XEM TẤT CẢ
+            <span className="text-2xl group-hover:translate-x-1 transition-transform duration-200">
+              &rarr;
+            </span>
+          </a>
+        </div>
+      )}
 
       {selectedProduct && (
         <ProductModal
@@ -114,7 +119,10 @@ const LaptopProductList: React.FC = () => {
           onConfirm={async (variantId, quantity) => {
             await refreshCart();
             setSelectedProduct(null);
-            showMessage(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`, "success");
+            showMessage(
+              `Đã thêm ${quantity} sản phẩm vào giỏ hàng!`,
+              "success"
+            );
           }}
           currentQuantityInCart={currentQuantityInCart}
         />

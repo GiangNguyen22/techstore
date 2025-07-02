@@ -16,7 +16,7 @@ const UpdateProductForm = ({ productId=7 }) => {
 
   useEffect(() => {
     // Lấy product cũ để pre-fill form
-    axios.get(`http://localhost:8080/api/products/${productId}`)
+    axios.get(`http://192.168.119.146:8080/api/products/${productId}`)
       .then(res => {
         setProduct({
           name: res.data.name || "",
@@ -60,7 +60,7 @@ const UpdateProductForm = ({ productId=7 }) => {
     }
     formData.append("productDto", new Blob([JSON.stringify(product)], { type: "application/json" }));
 
-    axios.put(`http://localhost:8080/api/products/${productId}`, formData, {
+    axios.put(`http://192.168.119.146:8080/api/products/${productId}`, formData, {
       headers: { "Content-Type": "multipart/form-data" }
     })
     .then(res => {
