@@ -20,11 +20,14 @@ import ControlAuthority from './content/ControlAuthority';
 import FooterComponent from '../commom/FooterComponent';
 import EditProduct from '../../pages/DashBoard/pages/EditProduct/EditProduct';
 import ProductMedia from './content/ProductMedia';
+import { useNavigate } from "react-router-dom";
 
 
 const DashboardLayout = () => {
   const [activeMenu, setActiveMenu] = useState('Dashboard_Admin');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const navigate = useNavigate();
+
   // Menu dữ liệu giả lập (có thể thay bằng props sau này)
   const menuItems = [
     { icon: require('lucide-react').Home, label: 'Dashboard_Admin', active: true },
@@ -45,8 +48,17 @@ const DashboardLayout = () => {
     { icon: require('lucide-react').Settings, label: 'Control Authority' },
   ];
   const action = [
-  { icon: require('lucide-react').LogOut, label: 'Logout',onClick: () => console.log('Logging out...') },
-  { icon: require('lucide-react').Store, label: 'Your Shop', onClick: () => window.location.href = 'http://192.168.119.146:3000/'},
+{
+  icon: require("lucide-react").LogOut,
+  label: "Log out",
+  onClick: () => {
+    localStorage.clear();
+    window.location.href = "/login";
+  },
+}
+,
+  { icon: require('lucide-react').Store, label: 'Your Shop',   onClick: () => navigate("/store"),}
+
 ];
 
 // const allMenus = [...menuItems, ...productMenuItems, ...adminMenuItems, ...action];

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { getCategories } from "../../api/categories";
 import { getProducts } from "../../api/products";
 import { Product } from "../../types/Product.type";
+import { useInView } from "../Detail/UseInView";
 
 const formatCurrency = (amount?: number) => {
   if (!amount) return "";
@@ -12,6 +13,9 @@ const MonitorProductList: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categoryId, setCategoryId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const { ref, inView } = useInView(0.1); // Hook animation
+  const BACKEND_URL = "http://localhost:8080";
 
   useEffect(() => {
     const fetchSmartphoneProducts = async () => {
@@ -34,48 +38,46 @@ const MonitorProductList: React.FC = () => {
     fetchSmartphoneProducts();
   }, []);
 
-  // Lấy đúng 6 sản phẩm + 1 ô "tất cả sản phẩm"
   const mainProducts = products.slice(0, 6);
-
-  // Sản phẩm nổi bật (ô đầu)
   const featured = products[0];
-  const BACKEND_URL = "http://localhost:8080";
 
   return (
-    <div className="w-full bg-gray-50 min-h-[600px]  py-8 px-2 md:px-4">
-      <h2 className="text-4xl font-bold text-center mb-10">
-        Màn Hình
-      </h2>
+    <div
+      ref={ref}
+      className="w-full bg-gray-50 min-h-[600px] py-8 px-2 md:px-4"
+    >
+      <h2 className="text-4xl font-bold text-center mb-10">Màn Hình</h2>
       {loading ? (
         <div className="text-center text-gray-400 italic text-lg animate-pulse">
           Đang tải sản phẩm...
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-7xl mx-auto">
-          {/* Ô đầu tiên span 2 cột */}
+          {/* Featured card */}
           {featured && (
             <a
               href={`/product/${featured.id}`}
-              className="relative flex flex-col md:flex-row justify-between bg-white rounded-3xl shadow hover:shadow-xl transition overflow-hidden p-7 hover:-translate-y-1 duration-200 group
-      md:col-span-2 md:row-span-1"
-              style={{ minHeight: 320 }}
+              className={`
+                relative flex flex-col md:flex-row justify-between bg-white rounded-3xl shadow p-7
+                hover:shadow-xl hover:-translate-y-1 group md:col-span-2 md:row-span-1
+                transform transition-all ease-out duration-1000
+                ${inView ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-10 scale-95"}
+              `}
+              style={{
+                minHeight: 320,
+                transitionDelay: "300ms",
+              }}
             >
-              {/* Thông tin nằm bên trái */}
               <div className="flex flex-col justify-between md:w-1/2">
-                <div>
-                  <div className="text-2xl font-bold mb-2">{featured.name}</div>
-                </div>
+                <div className="text-2xl font-bold mb-2">{featured.name}</div>
                 <div className="mt-4">
                   <div className="text-gray-500 text-sm mb-1">Từ</div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl font-extrabold text-black">
-                      {formatCurrency(featured.price)}
-                    </span>
+                  <div className="text-2xl font-extrabold text-black">
+                    {formatCurrency(featured.price)}
                   </div>
                 </div>
               </div>
-              {/* Ảnh nằm sát phải, chiếm full chiều cao */}
-              <div className="flex-1 flex items-center justify-end h-full">
+              <div className="flex-1 flex items-center justify-end">
                 <img
                   src={
                     featured.thumbnail
@@ -83,19 +85,26 @@ const MonitorProductList: React.FC = () => {
                       : featured.image
                   }
                   alt={featured.name}
-                  className="h-[200px] md:h-[240px] w-auto object-contain ml-auto"
-                  style={{ maxHeight: "100%", maxWidth: "100%" }}
+                  className="h-[200px] md:h-[240px] object-contain ml-auto"
                 />
               </div>
             </a>
           )}
-          {/* 5 sản phẩm tiếp theo */}
-          {mainProducts.slice(1).map((product) => (
+
+          {/* Remaining products */}
+          {mainProducts.slice(1).map((product, index) => (
             <a
               href={`/product/${product.id}`}
               key={product.id}
-              className="flex flex-col justify-between bg-white rounded-3xl shadow hover:shadow-xl transition overflow-hidden p-7 hover:-translate-y-1 duration-200 group"
-              style={{ minHeight: 320 }}
+              className={`
+                flex flex-col justify-between bg-white rounded-3xl shadow p-7 group
+                transform transition-all ease-out duration-1000
+                ${inView ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-10 scale-95"}
+              `}
+              style={{
+                minHeight: 320,
+                transitionDelay: `${(index + 1) * 400}ms`,
+              }}
             >
               <div>
                 <div className="text-lg font-bold mb-2">{product.name}</div>
@@ -113,18 +122,24 @@ const MonitorProductList: React.FC = () => {
               </div>
               <div className="mt-4">
                 <div className="text-gray-500 text-sm mb-1">Từ</div>
-                <div className="flex items-center gap-3">
-                  <span className="text-xl font-extrabold text-black">
-                    {formatCurrency(product.price)}
-                  </span>
+                <div className="text-xl font-extrabold text-black">
+                  {formatCurrency(product.price)}
                 </div>
               </div>
             </a>
           ))}
-          {/* Card Tất cả sản phẩm */}
+
+          {/* All products card */}
           <a
             href={categoryId ? `/category/${categoryId}` : "#"}
-            className="flex flex-col items-center justify-center rounded-3xl min-h-[320px] bg-gray-100 shadow hover:shadow-lg transition group p-7"
+            className={`
+              flex flex-col items-center justify-center rounded-3xl min-h-[320px] bg-gray-100 shadow p-7
+              transform transition-all ease-out duration-1000
+              ${inView ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-10 scale-95"}
+            `}
+            style={{
+              transitionDelay: "2400ms",
+            }}
           >
             <div className="text-lg font-bold mb-4">
               Tất cả sản phẩm{" "}
@@ -147,16 +162,20 @@ const MonitorProductList: React.FC = () => {
                 </svg>
               </span>
             </div>
-           {featured && (
+            {featured && (
               <div className="flex gap-4">
                 <img
-                  src={BACKEND_URL+featured.thumbnail || featured.image}
+                  src={
+                    featured.thumbnail
+                      ? BACKEND_URL + featured.thumbnail
+                      : featured.image
+                  }
                   alt=""
                   className="h-20 object-contain rounded-xl"
                 />
                 {mainProducts[1] && (
                   <img
-                    src={BACKEND_URL+mainProducts[1].thumbnail }
+                    src={BACKEND_URL + mainProducts[1].thumbnail}
                     alt=""
                     className="h-20 object-contain rounded-xl"
                   />

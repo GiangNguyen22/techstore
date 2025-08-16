@@ -88,7 +88,12 @@ const ProductModal: React.FC<ProductModalProps> = ({
 
   const handleBuyNow = () => {
     if (!selectedVariant) return;
-
+    const token = localStorage.getItem("accessToken");
+    if(!token){
+      showMessage("Vui lòng đăng nhập để tiếp tục ");
+      navigate("/login");
+      return;
+    }
     // Chuyển sang trang /order với dữ liệu biến thể và số lượng đã chọn,
     // có thể truyền state hoặc query param để trang order lấy và hiện thông tin
    navigate("/order", {

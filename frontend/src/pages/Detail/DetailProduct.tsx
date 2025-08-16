@@ -6,6 +6,7 @@ import { useNotification } from "../../pages/Detail/NotificationProvider";
 import { Product, ProductVariant } from "../../types/Product.type";
 import FooterComponent from "../../components/commom/FooterComponent";
 import Header from "../../components/commom/Header/Header";
+import { access } from "fs";
 
 const DetailProduct: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -84,13 +85,32 @@ const DetailProduct: React.FC = () => {
       showMessage(`Hết hàng`, "error");
       return;
     }
-    navigate("/order", {
-      state: {
-        productId: product!.id,
-        productVariantId: selectedVariant.id,
-        quantity,
-      },
-    });
+    const token  = localStorage.getItem("accessToken");
+   
+    if(!token){
+      showMessage("Vui lòng đăng nhập để thực hiện");
+      navigate("/login");
+      return;
+    }
+    try{
+      navigate("/order",{
+        state:{
+          orderItems: [
+            {
+              productId: product!.id,
+              productVariantId: selectedVariant.id,
+              quantity,
+            },
+          ],
+          cartItemIds: [],
+        },
+      });
+
+    }catch(error){
+      console.log("Lỗi khi mua ngay ",error);
+      showMessage("Mua ngay thất bại","error");
+    }
+   
   };
 
   if (!product) return <div>Đang tải sản phẩm...</div>;

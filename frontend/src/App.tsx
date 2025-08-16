@@ -13,7 +13,9 @@ function App() {
   );
   const [username, setUsername] = useState<string | null>(null);
   const isAdmin = useSelector((state: RootState) => state.auth.isAdmin);
-
+useEffect(() => {
+  window.scrollTo(0, 0);
+}, []);
   useEffect(() => {
     const fetchProfile = async () => {
       try {

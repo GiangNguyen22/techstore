@@ -133,7 +133,7 @@ const CardItem: React.FC<CardItemProps> = ({
               ${
                 isSoldOut
                   ? "bg-gray-100 text-gray-300 cursor-not-allowed"
-                  : "bg-orange-500 text-white hover:bg-orange-600 active:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-200 cursor-pointer"
+                  : "bg-black text-white hover:bg-orange-600 active:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-200 cursor-pointer"
               }`}
             disabled={isSoldOut}
             onClick={() => !isSoldOut && setShowModal(true)}

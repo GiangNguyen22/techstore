@@ -70,6 +70,7 @@
     ]
   },
   "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@tailwindcss/line-clamp": "^0.4.4",
     "@types/lodash.debounce": "^4.0.9",
     "@types/socket.io-client": "^3.0.0",

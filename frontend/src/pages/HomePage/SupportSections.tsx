@@ -56,8 +56,10 @@ const SupportSections: React.FC = () => (
     <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
       {supportSections.map((sec, idx) => (
         <div
-          className="flex flex-col items-center text-center group cursor-pointer transition"
           key={idx}
+          className="flex flex-col items-center text-center group cursor-pointer
+                     transition-transform duration-300 ease-out transform
+                     hover:-translate-y-2 hover:shadow-lg bg-white rounded-xl p-4"
         >
           <div className="mb-6">{sec.icon}</div>
           <div className="text-2xl font-bold mb-3 transition-colors duration-200 group-hover:text-orange-500">
@@ -71,5 +73,6 @@ const SupportSections: React.FC = () => (
     </div>
   </section>
 );
+
 
 export default SupportSections;

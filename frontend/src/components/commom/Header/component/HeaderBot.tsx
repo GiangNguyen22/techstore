@@ -34,7 +34,7 @@ const HeaderBot: React.FC<HeaderBotProps> = ({
   }, []);
 
   return (
-    <div className="bg-white h-16 flex items-center px-40 shadow-sm border-t border-orange-300 relative z-30">
+    <div className="bg-white h-16 flex items-center px-40 shadow-sm border-t border-orange-300 relative ">
       {/* Nút danh mục sản phẩm */}
       <div
         className="relative h-full flex items-center cursor-pointer px-4 rounded-xl hover:bg-orange-100 transition duration-200"
